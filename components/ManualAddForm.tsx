@@ -30,14 +30,19 @@ export function ManualAddForm({ onAdd }: ManualAddFormProps) {
   }
 
   return (
-    <section className="min-w-0 rounded-lg border border-stone-200 bg-white p-4 shadow-soft sm:p-5">
-      <h2 className="text-base font-semibold text-stone-950">Add your own</h2>
+    <section className="app-card-subtle">
+      <div>
+        <h2 className="section-heading">Add your own</h2>
+        <p className="mt-1 text-sm leading-6 text-stone-500">
+          Add a craving, dish, or place that is not from Google Places.
+        </p>
+      </div>
       <form className="mt-4 flex min-w-0 flex-col gap-3 sm:flex-row" onSubmit={handleSubmit}>
         <label className="sr-only" htmlFor="manual-option">
           Food or restaurant name
         </label>
         <input
-          className="h-11 min-w-0 flex-1 rounded-md border border-stone-300 bg-stone-50 px-3 text-stone-900 outline-none transition placeholder:text-stone-400 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100"
+          className="field-control min-w-0 flex-1"
           id="manual-option"
           onChange={(event) => setName(event.target.value)}
           placeholder="Type a food or restaurant name"
@@ -45,14 +50,14 @@ export function ManualAddForm({ onAdd }: ManualAddFormProps) {
           value={name}
         />
         <button
-          className="min-h-11 rounded-md bg-amber-500 px-5 py-2 text-sm font-semibold text-stone-950 transition hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-300 sm:w-auto"
+          className="btn-accent w-full sm:w-auto sm:px-6"
           type="submit"
         >
           Add
         </button>
       </form>
       {message ? (
-        <p className="mt-3 rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600">
+        <p className="status-box mt-3">
           {message}
         </p>
       ) : null}

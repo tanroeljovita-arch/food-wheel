@@ -94,16 +94,16 @@ export function WinnerCard({
   winner,
 }: WinnerCardProps) {
   return (
-    <section className="min-w-0 rounded-lg border border-stone-200 bg-white p-4 shadow-soft sm:p-5">
-      <h2 className="text-base font-semibold text-stone-950">Winner</h2>
+    <section className="app-card-subtle">
+      <h2 className="section-heading">Winner</h2>
       {notice ? (
-        <p className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">
+        <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-sm font-medium leading-6 text-emerald-700">
           {notice}
         </p>
       ) : null}
       {winner ? (
-        <div className="mt-4 min-w-0 rounded-md border border-amber-200 bg-amber-50 px-4 py-5">
-          <p className="break-words text-2xl font-bold text-stone-950">{winner.name}</p>
+        <div className="mt-4 min-w-0 rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-5 shadow-[0_12px_32px_rgba(217,119,6,0.10)]">
+          <p className="break-words text-2xl font-bold leading-tight text-stone-950">{winner.name}</p>
           <span
             className={
               winner.verified
@@ -141,7 +141,7 @@ export function WinnerCard({
           ) : null}
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
             <button
-              className="min-h-9 w-full rounded-md bg-stone-950 px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-300 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+              className="btn-primary w-full"
               disabled={!canSpin || isSpinning}
               onClick={onSpinAgain}
               type="button"
@@ -149,7 +149,7 @@ export function WinnerCard({
               {isSpinning ? "Spinning..." : "Spin again"}
             </button>
             <button
-              className="min-h-9 w-full rounded-md border border-red-200 bg-white px-3 py-1.5 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-100 disabled:cursor-not-allowed disabled:text-stone-400"
+              className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-red-700 transition hover:border-red-300 hover:bg-red-50 focus:outline-none focus:ring-4 focus:ring-red-100 disabled:cursor-not-allowed disabled:text-stone-400"
               disabled={isSpinning}
               onClick={onRemoveWinner}
               type="button"
@@ -163,7 +163,7 @@ export function WinnerCard({
                 Open in Google Maps to view reviews, menu, photos, and directions.
               </p>
               <a
-                className="inline-flex min-h-9 max-w-full items-center rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                className="btn-secondary max-w-full border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-300 hover:bg-emerald-100"
                 href={winner.mapsUrl}
                 rel="noreferrer"
                 target="_blank"
@@ -174,7 +174,7 @@ export function WinnerCard({
           ) : null}
         </div>
       ) : (
-        <p className="mt-4 rounded-md border border-dashed border-stone-300 bg-stone-50 px-3 py-4 text-sm text-stone-500">
+        <p className="empty-box mt-4">
           Spin the wheel to pick one option.
         </p>
       )}

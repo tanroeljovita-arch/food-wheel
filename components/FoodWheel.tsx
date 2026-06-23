@@ -102,20 +102,20 @@ export function FoodWheel({
   }
 
   return (
-    <section className="h-fit min-w-0 rounded-lg border border-stone-200 bg-white p-4 shadow-soft sm:p-5">
+    <section className="app-card h-fit">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-semibold text-stone-950">Spin the wheel</h2>
-        <span className="rounded-full bg-stone-100 px-2.5 py-1 text-xs font-medium text-stone-600">
+        <h2 className="section-heading">Spin the wheel</h2>
+        <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-800 ring-1 ring-amber-200/80">
           {items.length === 0 ? "No options" : items.length === 1 ? "1 option" : `${items.length} options`}
         </span>
       </div>
 
       <div className="mt-5 grid min-w-0 place-items-center gap-4">
-        <div className="relative grid aspect-square w-full max-w-[min(18rem,calc(100vw-3rem))] place-items-center">
+        <div className="relative grid aspect-square w-full max-w-[min(19rem,calc(100vw-3rem))] place-items-center">
           <div className="absolute -top-2 z-10 h-0 w-0 border-x-[14px] border-t-[26px] border-x-transparent border-t-stone-950 drop-shadow" />
           <svg
             aria-label="Food wheel"
-            className="h-full w-full rounded-full border-8 border-white bg-stone-200 shadow-[0_14px_40px_rgba(0,0,0,0.14)] transition-transform duration-[4200ms] ease-[cubic-bezier(0.12,0.88,0.18,1)]"
+            className="h-full w-full rounded-full border-8 border-white bg-stone-200 shadow-[0_18px_45px_rgba(68,64,60,0.16)] transition-transform duration-[4200ms] ease-[cubic-bezier(0.12,0.88,0.18,1)]"
             viewBox="0 0 300 300"
             role="img"
             style={{
@@ -158,13 +158,13 @@ export function FoodWheel({
               })
             )}
           </svg>
-          <div className="absolute grid h-20 w-20 place-items-center rounded-full border border-stone-200 bg-white px-3 text-center text-xs font-semibold text-stone-900 shadow-md sm:h-24 sm:w-24 sm:text-sm">
+          <div className="absolute grid h-20 w-20 place-items-center rounded-full border border-amber-100 bg-white px-3 text-center text-xs font-semibold text-stone-900 shadow-[0_10px_30px_rgba(68,64,60,0.14)] sm:h-24 sm:w-24 sm:text-sm">
             {items.length > 0 ? "Spin" : "Add options"}
           </div>
         </div>
 
         <button
-          className="min-h-11 w-full rounded-md bg-stone-950 px-5 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-300 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+          className="btn-primary w-full"
           disabled={items.length === 0 || isSpinning}
           onClick={spin}
           type="button"
@@ -172,7 +172,7 @@ export function FoodWheel({
           {isSpinning ? "Spinning..." : "Spin"}
         </button>
         {revealedWinner ? (
-          <p className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-stone-900">
+          <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-semibold text-stone-900">
             Winner: {revealedWinner.name}
           </p>
         ) : null}

@@ -53,9 +53,9 @@ type OpeningMode = "open_now" | "breakfast" | "lunch" | "dinner" | "custom";
 type PriceFilter = "" | "rm_1_20" | "rm_20_40" | "rm_40_60" | "rm_60_plus";
 
 const fieldClassName =
-  "h-11 w-full rounded-md border border-stone-300 bg-stone-50 px-3 text-stone-900 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-100";
-const labelClassName = "grid gap-1.5 text-sm font-medium text-stone-700";
-const helperClassName = "text-xs font-normal leading-5 text-stone-500";
+  "field-control";
+const labelClassName = "field-label";
+const helperClassName = "helper-text";
 
 export function SearchForm({ onResults }: SearchFormProps) {
   const [locationInput, setLocationInput] = useState("");
@@ -383,10 +383,15 @@ export function SearchForm({ onResults }: SearchFormProps) {
   }
 
   return (
-    <section className="min-w-0 rounded-lg border border-stone-200 bg-white p-4 shadow-soft sm:p-5">
-      <h2 className="text-base font-semibold text-stone-950">Search nearby</h2>
+    <section className="app-card">
+      <div>
+        <h2 className="section-heading">Search nearby</h2>
+        <p className="mt-1 text-sm leading-6 text-stone-500">
+          Pick a real location, choose your filters, then add Google Places results to the wheel.
+        </p>
+      </div>
       <form className="mt-4 grid min-w-0 gap-4" aria-label="Search form" onSubmit={handleSubmit}>
-        <div className="relative grid min-w-0 gap-1.5">
+        <div className="relative grid min-w-0 gap-2">
           <label className="text-sm font-medium text-stone-700" htmlFor="location-search">
             Location
           </label>
@@ -409,11 +414,11 @@ export function SearchForm({ onResults }: SearchFormProps) {
             </p>
           ) : null}
           {suggestions.length > 0 ? (
-            <ul className="relative z-20 max-h-64 w-full overflow-auto rounded-md border border-stone-200 bg-white py-1 shadow-soft">
+            <ul className="relative z-30 max-h-64 w-full overflow-auto rounded-2xl border border-orange-100 bg-white py-1 shadow-[0_18px_45px_rgba(68,64,60,0.14)]">
               {suggestions.map((suggestion) => (
                 <li key={suggestion.placeId}>
                   <button
-                    className="grid w-full gap-0.5 px-3 py-2 text-left transition hover:bg-amber-50 focus:bg-amber-50 focus:outline-none"
+                    className="grid w-full gap-0.5 px-3.5 py-3 text-left transition hover:bg-amber-50 focus:bg-amber-50 focus:outline-none"
                     onClick={() => selectSuggestion(suggestion)}
                     type="button"
                   >
@@ -427,19 +432,19 @@ export function SearchForm({ onResults }: SearchFormProps) {
             </ul>
           ) : null}
           {locationMessage ? (
-            <p className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600">
+            <p className="status-box">
               {locationMessage}
             </p>
           ) : null}
           {selectedLocation ? (
-            <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-sm leading-6 text-emerald-700">
               Selected location: {selectedLocation.label}
             </p>
           ) : null}
         </div>
 
         <button
-          className="min-h-11 w-full rounded-md border border-stone-300 bg-white px-4 py-2 text-sm font-semibold text-stone-800 transition hover:border-amber-400 hover:bg-amber-50 focus:outline-none focus:ring-2 focus:ring-amber-100 disabled:cursor-wait disabled:text-stone-500"
+          className="btn-secondary w-full disabled:cursor-wait"
           disabled={isLocating || isSearching}
           type="button"
           onClick={useCurrentLocation}
@@ -525,7 +530,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
           </span>
         </label>
 
-        <fieldset className="grid gap-2 rounded-md border border-stone-200 bg-stone-50 p-3">
+        <fieldset className="grid gap-2 rounded-2xl border border-stone-200 bg-stone-50/80 p-3.5">
           <legend className="px-1 text-sm font-medium text-stone-700">Search result handling</legend>
           <label className="flex items-start gap-2 text-sm text-stone-700">
             <input
@@ -550,7 +555,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
         </fieldset>
 
         <button
-          className="min-h-11 rounded-md bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-300 disabled:cursor-not-allowed disabled:bg-stone-300 disabled:text-stone-500"
+          className="btn-primary w-full"
           disabled={isSearching || isLocating || isLoadingDetails || cooldownSeconds > 0}
           type="submit"
         >
@@ -558,13 +563,13 @@ export function SearchForm({ onResults }: SearchFormProps) {
         </button>
 
         {cooldownSeconds > 0 ? (
-          <p className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600">
+          <p className="status-box">
             Please wait {cooldownSeconds} seconds before searching again.
           </p>
         ) : null}
 
         {message ? (
-          <p className="rounded-md border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-600">
+          <p className="status-box">
             {message}
           </p>
         ) : null}

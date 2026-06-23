@@ -167,13 +167,16 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto grid min-h-screen w-full max-w-[90rem] gap-6 overflow-x-hidden px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_150px] lg:px-8 lg:py-10 xl:grid-cols-[minmax(0,1fr)_170px]">
-      <div className="grid min-w-0 gap-5">
-        <header className="py-2">
+    <main className="mx-auto grid min-h-screen w-full max-w-[86rem] gap-5 overflow-x-hidden px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_148px] lg:px-8 lg:py-8 xl:grid-cols-[minmax(0,1fr)_164px]">
+      <div className="grid min-w-0 gap-4 sm:gap-5">
+        <header className="rounded-3xl bg-white/35 px-1 py-2">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">
+            Random food picker
+          </p>
           <h1 className="text-4xl font-bold tracking-normal text-stone-950 sm:text-5xl">
             Food Wheel
           </h1>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-stone-600">
+          <p className="mt-2 max-w-2xl text-base leading-7 text-stone-600">
             Can&apos;t decide what to eat? Add your options and spin the wheel.
           </p>
         </header>
@@ -181,7 +184,7 @@ export default function Home() {
         <SearchForm onResults={addGooglePlacesItems} />
         <ManualAddForm onAdd={addManualItem} />
 
-        <div className="grid min-w-0 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
+        <div className="grid min-w-0 items-start gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
           <div className="min-w-0">
             <RestaurantList
               items={items}
@@ -191,7 +194,7 @@ export default function Home() {
               onDelete={deleteItem}
             />
           </div>
-          <div className="grid min-w-0 gap-5">
+          <div className="grid min-w-0 gap-4 sm:gap-5">
             <FoodWheel
               items={items}
               onSpinningChange={setIsWheelSpinning}

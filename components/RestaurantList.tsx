@@ -95,17 +95,17 @@ export function RestaurantList({
   const manualItemsCount = items.filter((item) => item.source === "manual").length;
 
   return (
-    <section className="min-w-0 rounded-lg border border-stone-200 bg-white p-4 shadow-soft sm:p-5">
+    <section className="app-card">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-base font-semibold text-stone-950">Your options</h2>
+          <h2 className="section-heading">Your options</h2>
           <span className="text-sm text-stone-500">
             {items.length === 1 ? "1 option" : `${items.length} options`}
           </span>
         </div>
         <div className="flex flex-wrap gap-2">
           <button
-            className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 transition hover:border-red-300 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-100 disabled:cursor-not-allowed disabled:text-stone-400"
+            className="btn-danger"
             disabled={items.length === 0}
             onClick={onClearAll}
             type="button"
@@ -113,7 +113,7 @@ export function RestaurantList({
             Clear all
           </button>
           <button
-            className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 transition hover:border-red-300 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-100 disabled:cursor-not-allowed disabled:text-stone-400"
+            className="btn-small"
             disabled={googleItemsCount === 0}
             onClick={onClearGoogle}
             type="button"
@@ -121,7 +121,7 @@ export function RestaurantList({
             Clear Google
           </button>
           <button
-            className="rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-700 transition hover:border-red-300 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-100 disabled:cursor-not-allowed disabled:text-stone-400"
+            className="btn-small"
             disabled={manualItemsCount === 0}
             onClick={onClearManual}
             type="button"
@@ -132,28 +132,28 @@ export function RestaurantList({
       </div>
 
       {items.length === 0 ? (
-        <p className="mt-4 rounded-md border border-dashed border-stone-300 bg-stone-50 px-3 py-4 text-sm text-stone-500">
+        <p className="empty-box mt-4">
           Add manual items or search nearby restaurants to start spinning.
         </p>
       ) : (
-        <ul className="mt-4 grid min-w-0 gap-2.5">
+        <ul className="mt-4 grid min-w-0 gap-3">
           {items.map((item) => (
             <li
-              className="grid min-w-0 gap-3 rounded-md border border-stone-200 bg-white px-3.5 py-3 shadow-sm sm:grid-cols-[minmax(0,1fr)_auto]"
+              className="grid min-w-0 gap-3 rounded-2xl border border-stone-200/80 bg-stone-50/45 px-3.5 py-3.5 shadow-[0_8px_24px_rgba(68,64,60,0.04)] sm:grid-cols-[minmax(0,1fr)_auto]"
               key={item.id}
             >
               <div className="min-w-0">
-                <p className="min-w-0 truncate text-sm font-semibold text-stone-950 sm:text-base">{item.name}</p>
+                <p className="min-w-0 break-words text-[15px] font-semibold leading-6 text-stone-950 sm:text-base">{item.name}</p>
                 <span
                   className={
                     item.verified
-                      ? "mt-1 inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700"
-                      : "mt-1 inline-flex rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600"
+                      ? "mt-2 inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200/70"
+                      : "mt-2 inline-flex rounded-full bg-white px-2.5 py-1 text-xs font-medium text-stone-600 ring-1 ring-stone-200"
                   }
                 >
                   {item.verified ? "Google verified" : "Manual / Not verified"}
                 </span>
-                <div className="mt-2 flex min-w-0 flex-wrap gap-x-3 gap-y-1 text-sm text-stone-600">
+                <div className="mt-2.5 flex min-w-0 flex-wrap gap-x-3 gap-y-1.5 text-sm leading-6 text-stone-600">
                   {item.verified && typeof item.rating === "number" ? (
                     <span>Rating: {item.rating.toFixed(1)}</span>
                   ) : null}
@@ -179,7 +179,7 @@ export function RestaurantList({
               <div className="flex min-w-0 flex-wrap items-start gap-2 sm:justify-end">
                 {item.verified && item.mapsUrl ? (
                   <a
-                    className="inline-flex min-h-8 max-w-full items-center rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                    className="inline-flex min-h-10 max-w-full items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-100"
                     href={item.mapsUrl}
                     rel="noreferrer"
                     target="_blank"
@@ -189,7 +189,7 @@ export function RestaurantList({
                 ) : null}
                 <button
                   aria-label={`Delete ${item.name}`}
-                  className="min-h-8 shrink-0 rounded-md border border-stone-300 bg-white px-2.5 py-1 text-xs font-medium text-stone-700 transition hover:border-red-300 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-100"
+                  className="btn-danger shrink-0"
                   onClick={() => onDelete(item.id)}
                   type="button"
                 >
