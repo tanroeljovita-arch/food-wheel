@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Food Wheel — Random Restaurant Picker",
+  title: "Food Wheel - Random Restaurant Picker",
   description:
-    "Can't decide what to eat? Search real nearby restaurants from Google Places, edit your list, and spin the wheel to choose.",
+    "Food Wheel helps users randomly pick restaurants or food options near them using manual entries and real Google Places results.",
 };
 
 export default function RootLayout({

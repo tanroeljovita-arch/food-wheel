@@ -1,3 +1,4 @@
+import { buildFoodSearchQueries } from "@/lib/foodSearchQueries";
 import { normalizePlace } from "@/lib/normalizePlace";
 import type { PlacesSearchInput } from "@/lib/validation";
 import type { RestaurantItem } from "@/types/restaurant";
@@ -182,23 +183,6 @@ function getOpeningStatus(place: GooglePlaceWithHours, input: PlacesSearchInput)
   return "unknown" as const;
 }
 
-function getSearchQueries(keyword: string) {
-  const trimmedKeyword = keyword.trim();
-  const queries = trimmedKeyword
-    ? [
-        trimmedKeyword,
-        `${trimmedKeyword} food`,
-        `${trimmedKeyword} takeaway`,
-        `${trimmedKeyword} restaurant`,
-      ]
-    : EMPTY_KEYWORD_QUERIES;
-
-  return Array.from(new Set(queries.map((query) => query.trim()).filter(Boolean))).slice(
-    0,
-    trimmedKeyword ? 4 : 5,
-  );
-}
-
 function getSelectedPriceRange(input: PlacesSearchInput) {
   if (input.priceFilter === "rm_1_20") {
     return { min: 1, max: 20 };
@@ -340,7 +324,8 @@ export async function searchGooglePlaces(input: PlacesSearchInput): Promise<Rest
   };
 
   const places: unknown[] = [];
-  const searchQueries = getSearchQueries(input.keyword);
+  const trimmedKeyword = input.keyword.trim();
+  const searchQueries = trimmedKeyword ? buildFoodSearchQueries(trimmedKeyword) : EMPTY_KEYWORD_QUERIES;
 
   for (const query of searchQueries) {
     const baseBody = {
@@ -373,9 +358,12 @@ export async function searchGooglePlaces(input: PlacesSearchInput): Promise<Rest
   }
 
   const dedupedValidPlaces = new Map<string, NormalizedPlaceWithRaw>();
+  const placeMatchCounts = new Map<string, number>();
   const insideRadiusPlaces = new Map<string, RestaurantItem>();
   let insideRadiusCount = 0;
+  let afterOpeningHoursCount = 0;
   let hiddenByOpeningHoursCount = 0;
+  let afterPriceFilterCount = 0;
   let hiddenByPriceCount = 0;
 
   for (const place of places) {
@@ -390,10 +378,17 @@ export async function searchGooglePlaces(input: PlacesSearchInput): Promise<Rest
       continue;
     }
 
-    dedupedValidPlaces.set(normalizedPlace.placeId, {
-      item: normalizedPlace,
-      raw: googlePlace,
-    });
+    placeMatchCounts.set(
+      normalizedPlace.placeId,
+      (placeMatchCounts.get(normalizedPlace.placeId) || 0) + 1,
+    );
+
+    if (!dedupedValidPlaces.has(normalizedPlace.placeId)) {
+      dedupedValidPlaces.set(normalizedPlace.placeId, {
+        item: normalizedPlace,
+        raw: googlePlace,
+      });
+    }
   }
 
   for (const { item: normalizedPlace, raw } of dedupedValidPlaces.values()) {
@@ -425,6 +420,8 @@ export async function searchGooglePlaces(input: PlacesSearchInput): Promise<Rest
       continue;
     }
 
+    afterOpeningHoursCount += 1;
+
     if (input.priceFilter || input.priceLevel) {
       if (!matchesSelectedPrice(normalizedPlace, input)) {
         hiddenByPriceCount += 1;
@@ -437,18 +434,26 @@ export async function searchGooglePlaces(input: PlacesSearchInput): Promise<Rest
       distanceMeters,
       openingStatus,
     });
+    afterPriceFilterCount += 1;
   }
 
+  console.log("Google Places original food keyword", input.keyword);
+  console.log("Google Places generated query variants", searchQueries);
   console.log("Google Places raw results fetched", places.length);
   console.log("Google Places query count", searchQueries.length);
   console.log("Google Places deduped count", dedupedValidPlaces.size);
   console.log("Google Places inside-radius count", insideRadiusCount);
+  console.log("Google Places after opening-hours filter count", afterOpeningHoursCount);
+  console.log("Google Places after price filter count", afterPriceFilterCount);
   console.log("Google Places final displayed count", insideRadiusPlaces.size);
   console.log("Google Places hidden by opening-hours filter", hiddenByOpeningHoursCount);
   console.log("Google Places hidden by price filter", hiddenByPriceCount);
   console.log("Google Places selected radius meters", input.radius);
 
   return Array.from(insideRadiusPlaces.values()).sort(
-    (first, second) => getPriceSortRank(first, input) - getPriceSortRank(second, input),
+    (first, second) =>
+      getPriceSortRank(first, input) - getPriceSortRank(second, input) ||
+      (placeMatchCounts.get(second.placeId || "") || 0) -
+        (placeMatchCounts.get(first.placeId || "") || 0),
   );
 }

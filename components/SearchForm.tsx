@@ -337,6 +337,9 @@ export function SearchForm({ onResults }: SearchFormProps) {
           ? emptyMessage
           : `Showing ${results.length} real Google Places results that match your filters.`,
         results.length > 0 ? "Google may limit how many places are returned." : null,
+        results.length > 0 && results.length <= 3
+          ? "Google may return limited results for this food search. Try a larger radius or a related keyword."
+          : null,
         "Price ranges are based on Google data when available.",
         "Some places may not provide price data.",
         results.length > 0
@@ -442,10 +445,13 @@ export function SearchForm({ onResults }: SearchFormProps) {
             <input
               className={fieldClassName}
               onChange={(event) => setKeyword(event.target.value)}
-              placeholder="Food or restaurant type"
+              placeholder="Try 中国餐, thai, ramen, nasi lemak..."
               type="text"
               value={keyword}
             />
+            <span className={helperClassName}>
+              Search by cuisine, dish, or food type. Results depend on Google Places data.
+            </span>
           </label>
         </div>
 
