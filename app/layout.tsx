@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "Food Wheel - Random Restaurant Picker",
   description:
     "Food Wheel helps users randomly pick restaurants or food options near them using manual entries and real Google Places results.",
+  verification: {
+    google: "nE9HTJd9NCXYrOOGxxn0Es3N6kHIPIF4K6czDEyJ48w",
+  },
 };
 
 export default function RootLayout({
