@@ -99,7 +99,8 @@ export function RestaurantList({
     <section className="app-card">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="section-heading">Your options</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Shortlist</p>
+          <h2 className="section-heading mt-1">Your options</h2>
           <span className="text-sm text-stone-500">
             {items.length === 1 ? "1 option" : `${items.length} options`}
           </span>
@@ -137,18 +138,18 @@ export function RestaurantList({
           Add manual items or search nearby restaurants to start spinning.
         </p>
       ) : (
-        <ul className="mt-4 grid min-w-0 gap-3">
+        <ul className="mt-4 grid min-w-0 gap-3.5">
           {items.map((item) => (
             <li
               className={
                 item.verified && item.photoUrl
-                  ? "grid min-w-0 gap-3 rounded-2xl border border-stone-200/80 bg-stone-50/45 px-3.5 py-3.5 shadow-[0_8px_24px_rgba(68,64,60,0.04)] sm:grid-cols-[112px_minmax(0,1fr)_auto]"
-                  : "grid min-w-0 gap-3 rounded-2xl border border-stone-200/80 bg-stone-50/45 px-3.5 py-3.5 shadow-[0_8px_24px_rgba(68,64,60,0.04)] sm:grid-cols-[minmax(0,1fr)_auto]"
+                  ? "grid min-w-0 gap-3 overflow-hidden rounded-[1.35rem] border border-orange-100/80 bg-white shadow-[0_16px_44px_rgba(68,64,60,0.08)] sm:grid-cols-[150px_minmax(0,1fr)] lg:grid-cols-[168px_minmax(0,1fr)_auto]"
+                  : "grid min-w-0 gap-3 rounded-[1.35rem] border border-orange-100/80 bg-white/75 px-3.5 py-3.5 shadow-[0_10px_30px_rgba(68,64,60,0.05)] sm:grid-cols-[minmax(0,1fr)_auto]"
               }
               key={item.id}
             >
               {item.verified && item.photoUrl ? (
-                <div className="aspect-[4/3] w-full overflow-hidden rounded-xl bg-stone-100 sm:w-28">
+                <div className="aspect-[16/10] w-full overflow-hidden bg-orange-100 sm:aspect-auto sm:h-full sm:min-h-36">
                   <img
                     alt={item.name}
                     className="h-full w-full object-cover"
@@ -160,8 +161,8 @@ export function RestaurantList({
                   />
                 </div>
               ) : null}
-              <div className="min-w-0">
-                <p className="min-w-0 break-words text-[15px] font-semibold leading-6 text-stone-950 sm:text-base">{item.name}</p>
+              <div className={item.verified && item.photoUrl ? "min-w-0 px-3.5 pb-3.5 sm:px-0 sm:py-3.5" : "min-w-0"}>
+                <p className="min-w-0 break-words text-base font-semibold leading-6 text-stone-950 sm:text-lg">{item.name}</p>
                 <span
                   className={
                     item.verified
@@ -171,33 +172,33 @@ export function RestaurantList({
                 >
                   {item.verified ? "Google verified" : "Manual / Not verified"}
                 </span>
-                <div className="mt-2.5 flex min-w-0 flex-wrap gap-x-3 gap-y-1.5 text-sm leading-6 text-stone-600">
+                <div className="mt-3 flex min-w-0 flex-wrap gap-2 text-sm leading-6 text-stone-600">
                   {item.verified && typeof item.rating === "number" ? (
-                    <span>Rating: {item.rating.toFixed(1)}</span>
+                    <span className="rounded-full bg-amber-50 px-2.5 py-1 text-amber-800 ring-1 ring-amber-100">Rating: {item.rating.toFixed(1)}</span>
                   ) : null}
                   {item.verified && typeof item.distanceMeters === "number" ? (
-                    <span>{(item.distanceMeters / 1000).toFixed(1)} km away</span>
+                    <span className="rounded-full bg-stone-100 px-2.5 py-1">{(item.distanceMeters / 1000).toFixed(1)} km away</span>
                   ) : null}
                   {item.verified && item.placeType ? (
-                    <span>{formatPlaceType(item.placeType)}</span>
+                    <span className="rounded-full bg-stone-100 px-2.5 py-1">{formatPlaceType(item.placeType)}</span>
                   ) : null}
                   {item.verified ? (
-                    <span className="min-w-0 break-words">{getPriceLabel(item)}</span>
+                    <span className="min-w-0 rounded-full bg-stone-100 px-2.5 py-1">{getPriceLabel(item)}</span>
                   ) : null}
                   {item.verified ? (
-                    <span>{getOpeningStatusLabel(item.openingStatus)}</span>
+                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-800 ring-1 ring-emerald-100">{getOpeningStatusLabel(item.openingStatus)}</span>
                   ) : (
-                    <span>Opening hours not verified</span>
+                    <span className="rounded-full bg-stone-100 px-2.5 py-1">Opening hours not verified</span>
                   )}
                   {item.verified && item.address ? (
-                    <span className="min-w-0 break-words sm:line-clamp-1">{item.address}</span>
+                    <span className="basis-full min-w-0 break-words text-stone-500 sm:line-clamp-2">{item.address}</span>
                   ) : null}
                 </div>
               </div>
-              <div className="flex min-w-0 flex-wrap items-start gap-2 sm:justify-end">
+              <div className={item.verified && item.photoUrl ? "flex min-w-0 flex-wrap items-start gap-2 px-3.5 pb-3.5 sm:px-0 sm:py-3.5 sm:pr-3.5 lg:justify-end" : "flex min-w-0 flex-wrap items-start gap-2 sm:justify-end"}>
                 {item.verified && item.mapsUrl ? (
                   <a
-                    className="inline-flex min-h-10 max-w-full items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-100"
+                    className="inline-flex min-h-10 max-w-full items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-1.5 text-xs font-semibold text-emerald-800 transition hover:border-emerald-300 hover:bg-emerald-100 focus:outline-none focus:ring-4 focus:ring-emerald-100"
                     href={item.mapsUrl}
                     rel="noreferrer"
                     target="_blank"

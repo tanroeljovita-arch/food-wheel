@@ -360,7 +360,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
         results.length > 0 && results.length <= 3
           ? "Google may return limited results for this food search. Try a larger radius or a related keyword."
           : null,
-        "Price ranges are based on Google data when available.",
+        "Price filters depend on Google data and may vary by place.",
         "Some places may not provide price data.",
         results.length > 0
           ? "Some small stalls may not appear if they are not listed or returned by Google."
@@ -385,10 +385,13 @@ export function SearchForm({ onResults }: SearchFormProps) {
   }
 
   return (
-    <section className="app-card">
-      <div>
-        <h2 className="section-heading">Search nearby</h2>
-        <p className="mt-1 text-sm leading-6 text-stone-500">
+    <section className="app-card border-amber-100/80 bg-white/95">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Start with real places</p>
+          <h2 className="section-heading mt-1">Search nearby</h2>
+        </div>
+        <p className="max-w-md text-sm leading-6 text-stone-500">
           Pick a real location, choose your filters, then add Google Places results to the wheel.
         </p>
       </div>
@@ -416,7 +419,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
             </p>
           ) : null}
           {suggestions.length > 0 ? (
-            <ul className="relative z-30 max-h-64 w-full overflow-auto rounded-2xl border border-orange-100 bg-white py-1 shadow-[0_18px_45px_rgba(68,64,60,0.14)]">
+            <ul className="relative z-30 max-h-64 w-full overflow-auto rounded-2xl border border-orange-100 bg-white py-1 shadow-[0_22px_55px_rgba(68,64,60,0.16)]">
               {suggestions.map((suggestion) => (
                 <li key={suggestion.placeId}>
                   <button
@@ -475,7 +478,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
             <input
               className={fieldClassName}
               onChange={(event) => setKeyword(event.target.value)}
-              placeholder="Try 中国餐, thai, ramen, nasi lemak..."
+              placeholder="Try Chinese food, Thai, ramen, nasi lemak..."
               type="text"
               value={keyword}
             />
@@ -530,7 +533,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
           ) : null}
         </div>
 
-        <fieldset className="grid gap-2 rounded-2xl border border-stone-200 bg-stone-50/80 p-3.5">
+        <fieldset className="grid gap-2 rounded-2xl border border-orange-100 bg-orange-50/45 p-3.5">
           <legend className="px-1 text-sm font-medium text-stone-700">Search result handling</legend>
           <label className="flex items-start gap-2 text-sm text-stone-700">
             <input

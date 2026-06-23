@@ -30,10 +30,13 @@ export function ManualAddForm({ onAdd }: ManualAddFormProps) {
   }
 
   return (
-    <section className="app-card-subtle">
-      <div>
-        <h2 className="section-heading">Add your own</h2>
-        <p className="mt-1 text-sm leading-6 text-stone-500">
+    <section className="app-card-subtle bg-white/70">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-500">Personal shortlist</p>
+          <h2 className="section-heading mt-1">Add your own</h2>
+        </div>
+        <p className="max-w-sm text-sm leading-6 text-stone-500">
           Add a craving, dish, or place that is not from Google Places.
         </p>
       </div>

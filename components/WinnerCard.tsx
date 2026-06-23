@@ -95,15 +95,32 @@ export function WinnerCard({
   winner,
 }: WinnerCardProps) {
   return (
-    <section className="app-card-subtle">
-      <h2 className="section-heading">Winner</h2>
+    <section className="app-card-subtle bg-white/88">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Selected for you</p>
+        <h2 className="section-heading mt-1">Winner</h2>
+      </div>
       {notice ? (
         <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-sm font-medium leading-6 text-emerald-700">
           {notice}
         </p>
       ) : null}
       {winner ? (
-        <div className="mt-4 min-w-0 rounded-2xl border border-amber-200 bg-amber-50/90 px-4 py-5 shadow-[0_12px_32px_rgba(217,119,6,0.10)]">
+        <div className="mt-4 min-w-0 overflow-hidden rounded-[1.35rem] border border-amber-200 bg-amber-50/90 shadow-[0_18px_46px_rgba(217,119,6,0.13)]">
+          {winner.verified && winner.photoUrl ? (
+            <div className="aspect-[16/9] w-full overflow-hidden bg-orange-100">
+              <img
+                alt={winner.name}
+                className="h-full w-full object-cover"
+                loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.style.opacity = "0";
+                }}
+                src={winner.photoUrl}
+              />
+            </div>
+          ) : null}
+          <div className="px-4 py-5">
           <p className="break-words text-2xl font-bold leading-tight text-stone-950">{winner.name}</p>
           <span
             className={
@@ -173,6 +190,7 @@ export function WinnerCard({
               </a>
             </div>
           ) : null}
+          </div>
         </div>
       ) : (
         <p className="empty-box mt-4">
