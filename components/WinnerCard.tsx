@@ -41,16 +41,16 @@ function formatMoneyValue(value: string | number | undefined, nanos?: number) {
   return Number.isInteger(amount) ? amount.toString() : amount.toFixed(2);
 }
 
-function getFallbackPriceRange(priceLevel: RestaurantItem["priceLevel"]) {
+function getPriceLevelLabel(priceLevel: RestaurantItem["priceLevel"]) {
   switch (priceLevel) {
     case "PRICE_LEVEL_INEXPENSIVE":
-      return "RM 1–20";
+      return "Budget";
     case "PRICE_LEVEL_MODERATE":
-      return "RM 20–40";
+      return "Moderate";
     case "PRICE_LEVEL_EXPENSIVE":
-      return "RM 40–60";
+      return "Higher";
     case "PRICE_LEVEL_VERY_EXPENSIVE":
-      return "RM 60+";
+      return "Premium";
     default:
       return null;
   }
@@ -62,24 +62,25 @@ function getPriceLabel(item: RestaurantItem) {
   const start = formatMoneyValue(startPrice?.units, startPrice?.nanos);
   const end = formatMoneyValue(endPrice?.units, endPrice?.nanos);
   const currencyCode = startPrice?.currencyCode || endPrice?.currencyCode;
-  const currencyLabel = !currencyCode || currencyCode === "MYR" ? "RM" : currencyCode;
 
-  if (start && end) {
-    return `${currencyLabel} ${start}–${end}`;
+  if (currencyCode) {
+    if (start && end) {
+      return `${currencyCode} ${start}-${end}`;
+    }
+
+    if (start) {
+      return `${currencyCode} ${start}+`;
+    }
+
+    if (end) {
+      return `Up to ${currencyCode} ${end}`;
+    }
   }
 
-  if (start) {
-    return `${currencyLabel} ${start}+`;
-  }
-
-  if (end) {
-    return `Up to ${currencyLabel} ${end}`;
-  }
-
-  const fallback = getFallbackPriceRange(item.priceLevel);
+  const fallback = getPriceLevelLabel(item.priceLevel);
 
   if (fallback) {
-    return `Estimated by Google price level: ${fallback}`;
+    return `${fallback}`;
   }
 
   return "Price unknown";
@@ -181,3 +182,5 @@ export function WinnerCard({
     </section>
   );
 }
+
+

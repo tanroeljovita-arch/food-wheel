@@ -15,6 +15,9 @@ type GooglePlace = {
   };
   primaryType?: string;
   types?: string[];
+  photos?: Array<{
+    name?: string;
+  }>;
   googleMapsUri?: string;
 };
 
@@ -25,6 +28,8 @@ export function normalizePlace(place: GooglePlace): RestaurantItem | null {
   if (!placeId || !name) {
     return null;
   }
+
+  const photoName = place.photos?.find((photo) => typeof photo.name === "string" && photo.name)?.name;
 
   return {
     id: `google_places:${placeId}`,
@@ -39,6 +44,10 @@ export function normalizePlace(place: GooglePlace): RestaurantItem | null {
     lat: typeof place.location?.latitude === "number" ? place.location.latitude : undefined,
     lng: typeof place.location?.longitude === "number" ? place.location.longitude : undefined,
     placeType: place.primaryType || place.types?.[0] || undefined,
+    photoName,
+    photoUrl: photoName
+      ? `/api/places/photo?name=${encodeURIComponent(photoName)}&maxWidthPx=400`
+      : undefined,
     mapsUrl:
       place.googleMapsUri ||
       `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(placeId)}`,

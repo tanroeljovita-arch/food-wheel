@@ -50,7 +50,7 @@ type LocationBias = {
 };
 
 type OpeningMode = "open_now" | "breakfast" | "lunch" | "dinner" | "custom";
-type PriceFilter = "" | "rm_1_20" | "rm_20_40" | "rm_40_60" | "rm_60_plus";
+type PriceFilter = "all" | "budget" | "moderate" | "higher" | "premium";
 
 const fieldClassName =
   "field-control";
@@ -66,8 +66,8 @@ export function SearchForm({ onResults }: SearchFormProps) {
   const [keyword, setKeyword] = useState("");
   const [openingMode, setOpeningMode] = useState<OpeningMode>("open_now");
   const [customTime, setCustomTime] = useState("19:00");
-  const [priceFilter, setPriceFilter] = useState<PriceFilter>("");
-  const [resultMode, setResultMode] = useState<"append" | "replace_google">("append");
+  const [priceFilter, setPriceFilter] = useState<PriceFilter>("all");
+  const [resultMode, setResultMode] = useState<"append" | "replace_google">("replace_google");
   const [message, setMessage] = useState<string | null>(null);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -335,7 +335,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
           openingMode,
           targetDay: new Date().getDay(),
           targetTime: openingMode === "custom" ? customTime : undefined,
-          priceFilter: priceFilter || undefined,
+          priceFilter: priceFilter === "all" ? undefined : priceFilter,
         }),
       });
 
@@ -366,7 +366,9 @@ export function SearchForm({ onResults }: SearchFormProps) {
           ? "Some small stalls may not appear if they are not listed or returned by Google."
           : null,
         "Some places may be hidden because Google did not return opening-hours data.",
-        priceFilter ? "Some places may be hidden because Google does not provide price data." : null,
+        priceFilter !== "all"
+          ? "Some places may be hidden because Google does not provide price data."
+          : null,
         results.length > 0 ? `${summary.addedCount} added to your wheel.` : null,
         summary.replacedCount > 0 ? `Replaced ${summary.replacedCount} Google verified item(s).` : null,
         summary.skippedCount > 0 ? `Skipped ${summary.skippedCount} duplicate item(s).` : null,
@@ -452,8 +454,8 @@ export function SearchForm({ onResults }: SearchFormProps) {
           {isLocating ? "Getting location..." : "Use my current location"}
         </button>
 
-        <div className="grid min-w-0 gap-4 sm:grid-cols-[180px_minmax(0,1fr)]">
-          <label className={labelClassName}>
+        <div className="grid min-w-0 gap-4 md:grid-cols-[170px_minmax(0,1fr)_minmax(0,1fr)]">
+          <label className={`${labelClassName} md:order-2`}>
             Radius (km)
             <input
               className={fieldClassName}
@@ -468,7 +470,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
             />
           </label>
 
-          <label className={labelClassName}>
+          <label className={`${labelClassName} md:order-1 md:col-span-3`}>
             Food keyword
             <input
               className={fieldClassName}
@@ -481,10 +483,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
               Search by cuisine, dish, or food type. Results depend on Google Places data.
             </span>
           </label>
-        </div>
-
-        <div className="grid min-w-0 gap-4">
-          <label className={labelClassName}>
+          <label className={`${labelClassName} md:order-3`}>
             Opening hours
             <select
               className={fieldClassName}
@@ -499,8 +498,27 @@ export function SearchForm({ onResults }: SearchFormProps) {
             </select>
           </label>
 
+          <label className={`${labelClassName} md:order-4`}>
+            Price
+            <select
+              className={fieldClassName}
+              onChange={(event) => handlePriceFilterChange(event.target.value as PriceFilter)}
+              value={priceFilter}
+            >
+              <option value="all">All prices</option>
+              <option value="budget">Budget</option>
+              <option value="moderate">Moderate</option>
+              <option value="higher">Higher</option>
+              <option value="premium">Premium</option>
+            </select>
+          </label>
+
+          <p className={`${helperClassName} md:order-5 md:col-span-3`}>
+            Price filters depend on Google data and may vary by place.
+          </p>
+
           {openingMode === "custom" ? (
-            <label className={labelClassName}>
+            <label className={`${labelClassName} md:order-6 md:col-span-3`}>
               Custom time
               <input
                 className={fieldClassName}
@@ -512,36 +530,8 @@ export function SearchForm({ onResults }: SearchFormProps) {
           ) : null}
         </div>
 
-        <label className={labelClassName}>
-          Price
-          <select
-            className={fieldClassName}
-            onChange={(event) => handlePriceFilterChange(event.target.value as PriceFilter)}
-            value={priceFilter}
-          >
-            <option value="">All prices</option>
-            <option value="rm_1_20">RM 1–20</option>
-            <option value="rm_20_40">RM 20–40</option>
-            <option value="rm_40_60">RM 40–60</option>
-            <option value="rm_60_plus">RM 60+</option>
-          </select>
-          <span className={helperClassName}>
-            Price ranges are based on Google data when available. Some places may not provide price data.
-          </span>
-        </label>
-
         <fieldset className="grid gap-2 rounded-2xl border border-stone-200 bg-stone-50/80 p-3.5">
           <legend className="px-1 text-sm font-medium text-stone-700">Search result handling</legend>
-          <label className="flex items-start gap-2 text-sm text-stone-700">
-            <input
-              checked={resultMode === "append"}
-              className="mt-0.5"
-              name="result-mode"
-              onChange={() => setResultMode("append")}
-              type="radio"
-            />
-            <span>Add to current list</span>
-          </label>
           <label className="flex items-start gap-2 text-sm text-stone-700">
             <input
               checked={resultMode === "replace_google"}
@@ -551,6 +541,16 @@ export function SearchForm({ onResults }: SearchFormProps) {
               type="radio"
             />
             <span>Replace Google verified results only</span>
+          </label>
+          <label className="flex items-start gap-2 text-sm text-stone-700">
+            <input
+              checked={resultMode === "append"}
+              className="mt-0.5"
+              name="result-mode"
+              onChange={() => setResultMode("append")}
+              type="radio"
+            />
+            <span>Add to current list</span>
           </label>
         </fieldset>
 

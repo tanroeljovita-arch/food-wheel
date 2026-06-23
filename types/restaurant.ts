@@ -10,6 +10,8 @@ export type RestaurantItem = {
   lng?: number;
   distanceMeters?: number;
   placeType?: string;
+  photoName?: string;
+  photoUrl?: string;
   priceRange?: {
     startPrice?: {
       currencyCode?: string;

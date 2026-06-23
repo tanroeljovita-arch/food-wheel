@@ -6,7 +6,7 @@ const PRICE_LEVELS = new Set([
   "PRICE_LEVEL_EXPENSIVE",
   "PRICE_LEVEL_VERY_EXPENSIVE",
 ]);
-const PRICE_FILTERS = new Set(["rm_1_20", "rm_20_40", "rm_40_60", "rm_60_plus"]);
+const PRICE_FILTERS = new Set(["budget", "moderate", "higher", "premium"]);
 const MEAL_TIMES = {
   breakfast: "08:00",
   lunch: "12:30",
@@ -19,7 +19,7 @@ type PriceLevel =
   | "PRICE_LEVEL_MODERATE"
   | "PRICE_LEVEL_EXPENSIVE"
   | "PRICE_LEVEL_VERY_EXPENSIVE";
-type PriceFilter = "rm_1_20" | "rm_20_40" | "rm_40_60" | "rm_60_plus";
+type PriceFilter = "budget" | "moderate" | "higher" | "premium";
 
 export type PlacesSearchInput = {
   lat: number;
@@ -128,7 +128,7 @@ export function validatePlacesSearchInput(body: unknown):
 
   if (priceFilter !== undefined && priceFilter !== null && priceFilter !== "") {
     if (!isPriceFilter(priceFilter)) {
-      return { ok: false, error: "priceFilter must be rm_1_20, rm_20_40, rm_40_60, or rm_60_plus." };
+      return { ok: false, error: "priceFilter must be budget, moderate, higher, or premium." };
     }
 
     normalizedPriceFilter = priceFilter;

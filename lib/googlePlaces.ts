@@ -15,6 +15,7 @@ const PLACE_FIELD_MASK = [
   "places.location",
   "places.primaryType",
   "places.types",
+  "places.photos",
   "places.googleMapsUri",
   // Opening-hours fields can affect Google Places billing; they are requested only for filtering.
   "places.currentOpeningHours",
@@ -60,8 +61,6 @@ type NormalizedPlaceWithRaw = {
   item: RestaurantItem;
   raw: GooglePlaceWithHours;
 };
-
-type PriceMoney = NonNullable<NonNullable<RestaurantItem["priceRange"]>["startPrice"]>;
 
 async function fetchGooglePlacesPage(
   url: string,
@@ -183,121 +182,38 @@ function getOpeningStatus(place: GooglePlaceWithHours, input: PlacesSearchInput)
   return "unknown" as const;
 }
 
-function getSelectedPriceRange(input: PlacesSearchInput) {
-  if (input.priceFilter === "rm_1_20") {
-    return { min: 1, max: 20 };
+function getSelectedPriceLevels(input: PlacesSearchInput) {
+  if (input.priceFilter === "budget") {
+    return new Set(["PRICE_LEVEL_INEXPENSIVE"]);
   }
 
-  if (input.priceFilter === "rm_20_40") {
-    return { min: 20, max: 40 };
+  if (input.priceFilter === "moderate") {
+    return new Set(["PRICE_LEVEL_MODERATE"]);
   }
 
-  if (input.priceFilter === "rm_40_60") {
-    return { min: 40, max: 60 };
+  if (input.priceFilter === "higher") {
+    return new Set(["PRICE_LEVEL_EXPENSIVE"]);
   }
 
-  if (input.priceFilter === "rm_60_plus") {
-    return { min: 60, max: Number.POSITIVE_INFINITY };
-  }
-
-  return null;
-}
-
-function moneyToNumber(money: PriceMoney | undefined) {
-  if (!money) {
-    return undefined;
-  }
-
-  const units =
-    typeof money.units === "number"
-      ? money.units
-      : typeof money.units === "string"
-        ? Number(money.units)
-        : 0;
-  const nanos = typeof money.nanos === "number" ? money.nanos / 1_000_000_000 : 0;
-  const value = units + nanos;
-
-  return Number.isFinite(value) ? value : undefined;
-}
-
-function usesMyrPriceRange(priceRange: RestaurantItem["priceRange"]) {
-  const currencyCode = priceRange?.startPrice?.currencyCode || priceRange?.endPrice?.currencyCode;
-
-  return !currencyCode || currencyCode === "MYR";
-}
-
-function getGooglePriceRangeBounds(item: RestaurantItem) {
-  if (!item.priceRange || !usesMyrPriceRange(item.priceRange)) {
-    return null;
-  }
-
-  const start = moneyToNumber(item.priceRange.startPrice);
-  const end = moneyToNumber(item.priceRange.endPrice);
-
-  if (typeof start !== "number" && typeof end !== "number") {
-    return null;
-  }
-
-  const min = typeof start === "number" ? start : end;
-  const max = typeof end === "number" ? end : start;
-
-  if (typeof min !== "number" || typeof max !== "number") {
-    return null;
-  }
-
-  return {
-    min,
-    max,
-  };
-}
-
-function getPriceLevelFallbackBounds(priceLevel: string | undefined) {
-  if (priceLevel === "PRICE_LEVEL_INEXPENSIVE") {
-    return { min: 1, max: 20 };
-  }
-
-  if (priceLevel === "PRICE_LEVEL_MODERATE") {
-    return { min: 20, max: 40 };
-  }
-
-  if (priceLevel === "PRICE_LEVEL_EXPENSIVE") {
-    return { min: 40, max: 60 };
-  }
-
-  if (priceLevel === "PRICE_LEVEL_VERY_EXPENSIVE") {
-    return { min: 60, max: Number.POSITIVE_INFINITY };
+  if (input.priceFilter === "premium") {
+    return new Set(["PRICE_LEVEL_VERY_EXPENSIVE"]);
   }
 
   return null;
-}
-
-function rangesOverlap(
-  first: { min: number; max: number },
-  second: { min: number; max: number },
-) {
-  return first.min <= second.max && second.min <= first.max;
 }
 
 function matchesSelectedPrice(item: RestaurantItem, input: PlacesSearchInput) {
-  const selectedRange = getSelectedPriceRange(input);
+  if (input.priceLevel) {
+    return item.priceLevel === input.priceLevel;
+  }
 
-  if (!selectedRange) {
-    if (input.priceLevel) {
-      return item.priceLevel === input.priceLevel;
-    }
+  const selectedPriceLevels = getSelectedPriceLevels(input);
 
+  if (!selectedPriceLevels) {
     return true;
   }
 
-  const googleRange = getGooglePriceRangeBounds(item);
-
-  if (googleRange) {
-    return rangesOverlap(googleRange, selectedRange);
-  }
-
-  const fallbackRange = getPriceLevelFallbackBounds(item.priceLevel);
-
-  return fallbackRange ? rangesOverlap(fallbackRange, selectedRange) : false;
+  return typeof item.priceLevel === "string" && selectedPriceLevels.has(item.priceLevel);
 }
 
 function getPriceSortRank(item: RestaurantItem, input: PlacesSearchInput) {
