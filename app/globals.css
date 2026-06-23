@@ -85,27 +85,27 @@ select {
   }
 
   .hero-shell {
-    @apply relative overflow-hidden rounded-[2rem] border border-white/75 bg-[#2f2118] p-5 text-white shadow-[0_28px_80px_rgba(68,64,60,0.20)] sm:p-7 lg:p-8;
+    @apply relative overflow-hidden rounded-[1.8rem] border border-orange-100/85 bg-white/80 p-4 text-stone-950 shadow-[0_18px_55px_rgba(68,64,60,0.10)] backdrop-blur sm:p-5 lg:p-6;
   }
 
   .hero-shell::before {
     content: "";
     @apply absolute inset-0 opacity-95;
     background:
-      radial-gradient(circle at 18% 15%, rgba(251, 191, 36, 0.33), transparent 18rem),
-      radial-gradient(circle at 78% 20%, rgba(16, 185, 129, 0.22), transparent 18rem),
-      linear-gradient(135deg, rgba(120, 53, 15, 0.22), rgba(28, 25, 23, 0.92));
+      radial-gradient(circle at 92% 18%, rgba(251, 191, 36, 0.2), transparent 13rem),
+      radial-gradient(circle at 8% 4%, rgba(248, 113, 22, 0.1), transparent 15rem),
+      linear-gradient(135deg, rgba(255, 247, 237, 0.78), rgba(255, 255, 255, 0.88));
   }
 
   .hero-food-visual {
-    @apply relative mx-auto aspect-[4/3] w-full max-w-sm overflow-hidden rounded-[1.75rem] border border-white/15 bg-orange-100 shadow-[0_24px_60px_rgba(0,0,0,0.28)];
+    @apply relative aspect-square w-36 shrink-0 overflow-hidden rounded-full border border-orange-100 bg-orange-100/80 shadow-[0_16px_36px_rgba(120,53,15,0.10)];
     background:
-      radial-gradient(circle at 52% 50%, #fff7ed 0 22%, transparent 23%),
-      radial-gradient(circle at 52% 50%, #f97316 0 30%, transparent 31%),
+      radial-gradient(circle at 52% 50%, #fff7ed 0 24%, transparent 25%),
+      radial-gradient(circle at 52% 50%, rgba(249, 115, 22, 0.84) 0 33%, transparent 34%),
       radial-gradient(circle at 39% 42%, #84cc16 0 6%, transparent 7%),
       radial-gradient(circle at 60% 44%, #ef4444 0 5%, transparent 6%),
       radial-gradient(circle at 49% 62%, #facc15 0 7%, transparent 8%),
-      linear-gradient(135deg, #fed7aa 0%, #fb923c 48%, #14532d 100%);
+      linear-gradient(135deg, #ffedd5 0%, #fed7aa 54%, #dcfce7 100%);
   }
 
   .hero-food-visual::before,
@@ -115,10 +115,10 @@ select {
   }
 
   .hero-food-visual::before {
-    @apply -right-10 -top-10 h-32 w-32;
+    @apply -right-8 -top-8 h-20 w-20;
   }
 
   .hero-food-visual::after {
-    @apply -bottom-12 -left-8 h-36 w-36;
+    @apply -bottom-8 -left-8 h-24 w-24;
   }
 }

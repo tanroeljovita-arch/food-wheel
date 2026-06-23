@@ -170,29 +170,24 @@ export default function Home() {
     <main className="mx-auto grid min-h-screen w-full max-w-[88rem] gap-5 overflow-x-hidden px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_150px] lg:px-8 lg:py-8 xl:grid-cols-[minmax(0,1fr)_168px]">
       <div className="grid min-w-0 gap-5">
         <header className="hero-shell">
-          <div className="relative z-10 grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.9fr)] lg:items-center">
+          <div className="relative z-10 flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
-              <p className="mb-3 inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-amber-100">
+              <p className="mb-3 inline-flex rounded-full border border-orange-200/80 bg-amber-50/80 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-amber-800">
                 Random restaurant picker
               </p>
-              <h1 className="max-w-2xl text-4xl font-bold leading-tight tracking-normal text-white sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-2xl text-4xl font-bold leading-tight tracking-normal text-stone-950 sm:text-5xl">
                 Food Wheel
               </h1>
-              <p className="mt-4 max-w-xl text-base leading-7 text-orange-50/85 sm:text-lg">
+              <p className="mt-3 max-w-xl text-base leading-7 text-stone-600 sm:text-lg">
                 Can&apos;t decide what to eat? Search real nearby places, keep the options you like, then spin for your next meal.
               </p>
-              <div className="mt-5 flex flex-wrap gap-2 text-xs font-semibold text-orange-50/90">
-                <span className="rounded-full bg-white/12 px-3 py-1.5 ring-1 ring-white/15">Google Places results</span>
-                <span className="rounded-full bg-white/12 px-3 py-1.5 ring-1 ring-white/15">Manual options</span>
-                <span className="rounded-full bg-white/12 px-3 py-1.5 ring-1 ring-white/15">Spin to choose</span>
+              <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-stone-600">
+                <span className="rounded-full bg-white/70 px-3 py-1.5 ring-1 ring-orange-100">Google Places results</span>
+                <span className="rounded-full bg-white/70 px-3 py-1.5 ring-1 ring-orange-100">Manual options</span>
+                <span className="rounded-full bg-white/70 px-3 py-1.5 ring-1 ring-orange-100">Spin to choose</span>
               </div>
             </div>
-            <div className="hero-food-visual">
-              <div className="absolute bottom-4 left-4 right-4 rounded-2xl bg-white/88 p-3 text-stone-950 shadow-[0_18px_45px_rgba(28,25,23,0.18)] backdrop-blur">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Find your next meal</p>
-                <p className="mt-1 text-sm font-semibold">Search, shortlist, spin.</p>
-              </div>
-            </div>
+            <div className="hero-food-visual hidden lg:block" aria-hidden="true" />
           </div>
         </header>
 
