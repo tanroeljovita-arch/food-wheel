@@ -43,6 +43,12 @@ type SelectedLocation = {
   lng: number;
 };
 
+type LocationBias = {
+  lat: number;
+  lng: number;
+  source: "current_location" | "selected_location";
+};
+
 type OpeningMode = "open_now" | "breakfast" | "lunch" | "dinner" | "custom";
 type PriceFilter = "" | "rm_1_20" | "rm_20_40" | "rm_40_60" | "rm_60_plus";
 
@@ -54,6 +60,7 @@ const helperClassName = "text-xs font-normal leading-5 text-stone-500";
 export function SearchForm({ onResults }: SearchFormProps) {
   const [locationInput, setLocationInput] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(null);
+  const [locationBias, setLocationBias] = useState<LocationBias | null>(null);
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [radiusKm, setRadiusKm] = useState("1");
   const [keyword, setKeyword] = useState("");
@@ -122,7 +129,10 @@ export function SearchForm({ onResults }: SearchFormProps) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ input: trimmedInput }),
+          body: JSON.stringify({
+            input: trimmedInput,
+            locationBias,
+          }),
           signal: controller.signal,
         });
         const data = (await response.json()) as AutocompleteResponse;
@@ -156,7 +166,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
       controller.abort();
       window.clearTimeout(timer);
     };
-  }, [locationInput, selectedLocation]);
+  }, [locationInput, selectedLocation, locationBias]);
 
   function handleLocationInputChange(value: string) {
     setLocationInput(value);
@@ -201,6 +211,11 @@ export function SearchForm({ onResults }: SearchFormProps) {
           label,
           lat: position.coords.latitude,
           lng: position.coords.longitude,
+        });
+        setLocationBias({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          source: "current_location",
         });
         setLocationInput(label);
         setSuggestions([]);
@@ -262,6 +277,11 @@ export function SearchForm({ onResults }: SearchFormProps) {
         label,
         lat: data.lat,
         lng: data.lng,
+      });
+      setLocationBias({
+        lat: data.lat,
+        lng: data.lng,
+        source: "selected_location",
       });
       console.log("details resolved lat/lng", data.lat, data.lng);
       setLocationInput(label);
@@ -380,6 +400,9 @@ export function SearchForm({ onResults }: SearchFormProps) {
             type="text"
             value={locationInput}
           />
+          <span className={helperClassName}>
+            Search places near you. Add city or area for better accuracy, e.g. UTM Skudai.
+          </span>
           {isLoadingSuggestions || isLoadingDetails ? (
             <p className={helperClassName}>
               {isLoadingDetails ? "Loading selected location..." : "Searching locations..."}
