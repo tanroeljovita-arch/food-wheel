@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { MapPreview } from "@/components/MapPreview";
 import type { RestaurantItem } from "@/types/restaurant";
 
 type SearchFormProps = {
@@ -532,6 +533,15 @@ export function SearchForm({ onResults }: SearchFormProps) {
             </label>
           ) : null}
         </div>
+
+        {selectedLocation && isRadiusValid ? (
+          <MapPreview
+            latitude={selectedLocation.lat}
+            locationLabel={selectedLocation.label}
+            longitude={selectedLocation.lng}
+            radiusKm={numericRadiusKm}
+          />
+        ) : null}
 
         <fieldset className="grid gap-2 rounded-2xl border border-orange-100 bg-orange-50/45 p-3.5">
           <legend className="px-1 text-sm font-medium text-stone-700">Search result handling</legend>
