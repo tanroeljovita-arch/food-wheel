@@ -81,6 +81,27 @@ export function SearchForm({ onResults }: SearchFormProps) {
   const isRadiusValid =
     Number.isFinite(numericRadiusKm) && numericRadiusKm >= 0.1 && numericRadiusKm <= 50;
   const radiusMeters = numericRadiusKm * 1000;
+  const hasMapCenter =
+    Boolean(selectedLocation) &&
+    Number.isFinite(selectedLocation?.lat) &&
+    Number.isFinite(selectedLocation?.lng) &&
+    isRadiusValid;
+  const hasBrowserKey = Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY);
+
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") {
+      return;
+    }
+
+    console.log("map preview state", {
+      hasMapCenter,
+      latitude: selectedLocation?.lat,
+      longitude: selectedLocation?.lng,
+      radiusKm: numericRadiusKm,
+      hasBrowserKey,
+      shouldShowMapToggle: hasMapCenter,
+    });
+  }, [hasBrowserKey, hasMapCenter, numericRadiusKm, selectedLocation?.lat, selectedLocation?.lng]);
 
   useEffect(() => {
     if (cooldownSeconds <= 0) {
@@ -534,7 +555,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
           ) : null}
         </div>
 
-        {selectedLocation && isRadiusValid ? (
+        {hasMapCenter && selectedLocation ? (
           <MapPreview
             latitude={selectedLocation.lat}
             locationLabel={selectedLocation.label}

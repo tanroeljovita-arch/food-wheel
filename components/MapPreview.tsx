@@ -157,12 +157,8 @@ export function MapPreview({ latitude, longitude, radiusKm, locationLabel }: Map
     };
   }, [apiKey, isOpen, latitude, locationLabel, longitude, radiusMeters]);
 
-  if (!apiKey && process.env.NODE_ENV !== "development") {
-    return null;
-  }
-
   return (
-    <div className="rounded-2xl border border-orange-100 bg-orange-50/40 p-3.5">
+    <div className="rounded-2xl border border-orange-100 bg-orange-50/50 p-3.5 shadow-[0_10px_26px_rgba(68,64,60,0.05)]">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-stone-800">Search area map</p>
@@ -179,7 +175,9 @@ export function MapPreview({ latitude, longitude, radiusKm, locationLabel }: Map
         <div className="mt-3 overflow-hidden rounded-2xl border border-white/80 bg-white shadow-[0_12px_28px_rgba(68,64,60,0.08)]">
           {status === "missing_key" ? (
             <div className="grid min-h-[180px] place-items-center px-4 py-6 text-center text-sm leading-6 text-stone-500 md:min-h-[230px]">
-              Add NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY to .env.local to preview the search radius map.
+              {process.env.NODE_ENV === "development"
+                ? "Add NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY to .env.local to preview the search radius map."
+                : "Map preview is not configured yet."}
             </div>
           ) : (
             <div className="relative">
