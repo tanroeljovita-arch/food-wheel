@@ -16,5 +16,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     {
       url: `${siteUrl}/contact`,
     },
+    {
+      url: `${siteUrl}/random-restaurant-picker`,
+    },
+    {
+      url: `${siteUrl}/what-to-eat-near-me`,
+    },
+    {
+      url: `${siteUrl}/food-wheel-malaysia`,
+    },
+    {
+      url: `${siteUrl}/makan-wheel-malaysia`,
+    },
   ];
 }

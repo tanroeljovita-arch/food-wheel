@@ -1,10 +1,49 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+const siteUrl = "https://food-wheel-seven.vercel.app";
+const siteTitle = "Food Wheel - Random Restaurant Picker";
+const siteDescription =
+  "Food Wheel helps you randomly pick restaurants or food options near you using manual entries and real Google Places results.";
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Food Wheel",
+    alternateName: ["Food Wheel App", "Random Restaurant Picker", "Makan Wheel"],
+    url: siteUrl,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Food Wheel",
+    applicationCategory: "LifestyleApplication",
+    operatingSystem: "Web",
+    url: siteUrl,
+    description: siteDescription,
+  },
+];
+
 export const metadata: Metadata = {
-  title: "Food Wheel - Random Restaurant Picker",
-  description:
-    "Food Wheel helps users randomly pick restaurants or food options near them using manual entries and real Google Places results.",
+  metadataBase: new URL(siteUrl),
+  applicationName: "Food Wheel",
+  title: siteTitle,
+  description: siteDescription,
+  alternates: {
+    canonical: siteUrl,
+  },
+  openGraph: {
+    siteName: "Food Wheel",
+    title: siteTitle,
+    description: siteDescription,
+    url: siteUrl,
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: siteTitle,
+    description: siteDescription,
+  },
   verification: {
     google: "nE9HTJd9NCXYrOOGxxn0Es3N6kHIPIF4K6czDEyJ48w",
   },
@@ -21,6 +60,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
         <script
           async
           crossOrigin="anonymous"

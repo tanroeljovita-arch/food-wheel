@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { AdSlot } from "@/components/AdSlot";
 import { FoodWheel } from "@/components/FoodWheel";
 import { ManualAddForm } from "@/components/ManualAddForm";
 import { RestaurantList } from "@/components/RestaurantList";
@@ -167,7 +167,7 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto grid min-h-screen w-full max-w-[88rem] gap-5 overflow-x-hidden px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_150px] lg:px-8 lg:py-8 xl:grid-cols-[minmax(0,1fr)_168px]">
+    <main className="mx-auto grid min-h-screen w-full max-w-[78rem] gap-5 overflow-x-hidden px-4 py-5 sm:px-6 lg:px-8 lg:py-8">
       <div className="grid min-w-0 gap-5">
         <header className="hero-shell">
           <div className="relative z-10 flex min-w-0 flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -224,9 +224,26 @@ export default function Home() {
             />
           </div>
         </div>
+
+        <section className="app-card-subtle">
+          <h2 className="section-heading">More ways to use Food Wheel</h2>
+          <div className="mt-3 flex flex-wrap gap-2 text-sm font-medium text-stone-700">
+            <Link className="rounded-full bg-white/75 px-3 py-2 ring-1 ring-orange-100 transition hover:bg-amber-50" href="/random-restaurant-picker">
+              Random Restaurant Picker
+            </Link>
+            <Link className="rounded-full bg-white/75 px-3 py-2 ring-1 ring-orange-100 transition hover:bg-amber-50" href="/what-to-eat-near-me">
+              What to Eat Near Me
+            </Link>
+            <Link className="rounded-full bg-white/75 px-3 py-2 ring-1 ring-orange-100 transition hover:bg-amber-50" href="/food-wheel-malaysia">
+              Food Wheel Malaysia
+            </Link>
+            <Link className="rounded-full bg-white/75 px-3 py-2 ring-1 ring-orange-100 transition hover:bg-amber-50" href="/makan-wheel-malaysia">
+              Makan Wheel Malaysia
+            </Link>
+          </div>
+        </section>
       </div>
 
-      <AdSlot />
     </main>
   );
 }
