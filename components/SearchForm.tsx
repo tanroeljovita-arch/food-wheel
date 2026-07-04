@@ -57,6 +57,24 @@ const fieldClassName =
   "field-control";
 const labelClassName = "field-label";
 const helperClassName = "helper-text";
+const foodTypeOptions = [
+  "Chinese food",
+  "Malay food",
+  "Indian food",
+  "Japanese food",
+  "Korean food",
+  "Thai food",
+  "Western food",
+  "Cafe",
+  "Mamak",
+  "Noodles",
+  "Rice",
+  "Hotpot",
+  "BBQ",
+  "Fast food",
+  "Dessert",
+  "Vegetarian",
+];
 
 export function SearchForm({ onResults }: SearchFormProps) {
   const [locationInput, setLocationInput] = useState("");
@@ -69,6 +87,9 @@ export function SearchForm({ onResults }: SearchFormProps) {
   const [customTime, setCustomTime] = useState("19:00");
   const [priceFilter, setPriceFilter] = useState<PriceFilter>("all");
   const [resultMode, setResultMode] = useState<"append" | "replace_google">("replace_google");
+  const [isFoodTypeHelperOpen, setIsFoodTypeHelperOpen] = useState(false);
+  const [foodTypeMessage, setFoodTypeMessage] = useState<string | null>(null);
+  const [isFoodTypeSpinning, setIsFoodTypeSpinning] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -202,6 +223,25 @@ export function SearchForm({ onResults }: SearchFormProps) {
 
   function handlePriceFilterChange(value: PriceFilter) {
     setPriceFilter(value);
+  }
+
+  function setFoodKeywordFromHelper(foodType: string) {
+    setKeyword(foodType);
+    setFoodTypeMessage(`Food keyword set to: ${foodType}`);
+  }
+
+  function spinFoodType() {
+    if (isFoodTypeSpinning) {
+      return;
+    }
+
+    setIsFoodTypeSpinning(true);
+
+    window.setTimeout(() => {
+      const nextFoodType = foodTypeOptions[Math.floor(Math.random() * foodTypeOptions.length)];
+      setFoodKeywordFromHelper(nextFoodType);
+      setIsFoodTypeSpinning(false);
+    }, 260);
   }
 
   function handleLocationKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -495,19 +535,70 @@ export function SearchForm({ onResults }: SearchFormProps) {
             />
           </label>
 
-          <label className={`${labelClassName} md:order-1 md:col-span-3`}>
-            Food keyword
-            <input
-              className={fieldClassName}
-              onChange={(event) => setKeyword(event.target.value)}
-              placeholder="Try Chinese food, Thai, ramen, nasi lemak..."
-              type="text"
-              value={keyword}
-            />
+          <div className="grid gap-2 md:order-1 md:col-span-3">
+            <label className={labelClassName}>
+              Food keyword
+              <input
+                className={fieldClassName}
+                onChange={(event) => {
+                  setKeyword(event.target.value);
+                  setFoodTypeMessage(null);
+                }}
+                placeholder="Try Chinese food, Thai, ramen, nasi lemak..."
+                type="text"
+                value={keyword}
+              />
+            </label>
             <span className={helperClassName}>
               Search by cuisine, dish, or food type. Results depend on Google Places data.
             </span>
-          </label>
+            <div className="rounded-2xl border border-orange-100 bg-orange-50/45 p-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm font-medium text-stone-700">Not sure what to search?</p>
+                <button
+                  aria-expanded={isFoodTypeHelperOpen}
+                  className="btn-small w-full sm:w-auto"
+                  onClick={() => setIsFoodTypeHelperOpen((current) => !current)}
+                  type="button"
+                >
+                  {isFoodTypeHelperOpen ? "Hide food types" : "Pick a food type"}
+                </button>
+              </div>
+
+              {isFoodTypeHelperOpen ? (
+                <div className="mt-3 grid gap-3">
+                  <button
+                    aria-label="Spin to choose a food type"
+                    className="btn-secondary min-h-11 w-full rounded-xl py-2 text-xs"
+                    disabled={isFoodTypeSpinning}
+                    onClick={spinFoodType}
+                    type="button"
+                  >
+                    {isFoodTypeSpinning ? "Picking..." : "Spin food type"}
+                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    {foodTypeOptions.map((foodType) => (
+                      <button
+                        aria-label={`Set food keyword to ${foodType}`}
+                        className="rounded-full border border-orange-100 bg-white/85 px-3 py-2 text-xs font-semibold text-stone-700 transition hover:border-amber-300 hover:bg-amber-50 focus:outline-none focus:ring-4 focus:ring-amber-100"
+                        key={foodType}
+                        onClick={() => setFoodKeywordFromHelper(foodType)}
+                        type="button"
+                      >
+                        {foodType}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {foodTypeMessage ? (
+                <p className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                  {foodTypeMessage}
+                </p>
+              ) : null}
+            </div>
+          </div>
           <label className={`${labelClassName} md:order-3`}>
             Opening hours
             <select

@@ -192,18 +192,24 @@ export default function Home() {
         </header>
 
         <div className="grid min-w-0 items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
-          <div className="grid min-w-0 gap-5">
-            <SearchForm onResults={addGooglePlacesItems} />
-            <ManualAddForm onAdd={addManualItem} />
-            <RestaurantList
-              items={items}
-              onClearAll={clearAllItems}
-              onClearGoogle={clearGoogleItems}
-              onClearManual={clearManualItems}
-              onDelete={deleteItem}
-            />
+          <div className="contents xl:grid xl:min-w-0 xl:gap-5">
+            <div className="order-1">
+              <SearchForm onResults={addGooglePlacesItems} />
+            </div>
+            <div className="order-2">
+              <ManualAddForm onAdd={addManualItem} />
+            </div>
+            <div className="order-4 xl:order-3">
+              <RestaurantList
+                items={items}
+                onClearAll={clearAllItems}
+                onClearGoogle={clearGoogleItems}
+                onClearManual={clearManualItems}
+                onDelete={deleteItem}
+              />
+            </div>
           </div>
-          <div className="grid min-w-0 gap-5 xl:sticky xl:top-8">
+          <div className="order-3 grid min-w-0 gap-5 xl:sticky xl:top-8 xl:order-none">
             <FoodWheel
               items={items}
               onSpinningChange={setIsWheelSpinning}
@@ -243,7 +249,6 @@ export default function Home() {
           </div>
         </section>
       </div>
-
     </main>
   );
 }
