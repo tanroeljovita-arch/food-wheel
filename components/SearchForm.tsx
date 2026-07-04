@@ -75,6 +75,36 @@ const foodTypeOptions = [
   "Dessert",
   "Vegetarian",
 ];
+const foodTypeWheelColors = ["#f59e0b", "#fb7185", "#84cc16", "#38bdf8", "#facc15", "#a78bfa"];
+const foodTypeSpinDurationMs = 1900;
+
+function foodTypePolarToCartesian(center: number, radius: number, angleInDegrees: number) {
+  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180;
+
+  return {
+    x: center + radius * Math.cos(angleInRadians),
+    y: center + radius * Math.sin(angleInRadians),
+  };
+}
+
+function describeFoodTypeSegment(startAngle: number, endAngle: number) {
+  const center = 100;
+  const radius = 94;
+  const start = foodTypePolarToCartesian(center, radius, endAngle);
+  const end = foodTypePolarToCartesian(center, radius, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+  return [
+    `M ${center} ${center}`,
+    `L ${start.x} ${start.y}`,
+    `A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
+    "Z",
+  ].join(" ");
+}
+
+function shortenFoodTypeLabel(foodType: string) {
+  return foodType.replace(" food", "").replace("Western", "West").replace("Vegetarian", "Veg");
+}
 
 export function SearchForm({ onResults }: SearchFormProps) {
   const [locationInput, setLocationInput] = useState("");
@@ -90,6 +120,8 @@ export function SearchForm({ onResults }: SearchFormProps) {
   const [isFoodTypeHelperOpen, setIsFoodTypeHelperOpen] = useState(false);
   const [foodTypeMessage, setFoodTypeMessage] = useState<string | null>(null);
   const [isFoodTypeSpinning, setIsFoodTypeSpinning] = useState(false);
+  const [foodTypeWheelRotation, setFoodTypeWheelRotation] = useState(0);
+  const [foodTypeWheelDurationMs, setFoodTypeWheelDurationMs] = useState(foodTypeSpinDurationMs);
   const [message, setMessage] = useState<string | null>(null);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -235,13 +267,27 @@ export function SearchForm({ onResults }: SearchFormProps) {
       return;
     }
 
+    const nextFoodTypeIndex = Math.floor(Math.random() * foodTypeOptions.length);
+    const segmentSize = 360 / foodTypeOptions.length;
+    const segmentCenterAngle = nextFoodTypeIndex * segmentSize + segmentSize / 2;
+    const currentNormalizedRotation = ((foodTypeWheelRotation % 360) + 360) % 360;
+    const targetNormalizedRotation = (360 - segmentCenterAngle) % 360;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const spinDuration = prefersReducedMotion ? 180 : foodTypeSpinDurationMs;
+    const additionalDegrees =
+      (prefersReducedMotion ? 360 : 1440) +
+      ((targetNormalizedRotation - currentNormalizedRotation + 360) % 360);
+    const nextRotation = foodTypeWheelRotation + additionalDegrees;
+
     setIsFoodTypeSpinning(true);
+    setFoodTypeMessage(null);
+    setFoodTypeWheelDurationMs(spinDuration);
+    setFoodTypeWheelRotation(nextRotation);
 
     window.setTimeout(() => {
-      const nextFoodType = foodTypeOptions[Math.floor(Math.random() * foodTypeOptions.length)];
-      setFoodKeywordFromHelper(nextFoodType);
+      setFoodKeywordFromHelper(foodTypeOptions[nextFoodTypeIndex]);
       setIsFoodTypeSpinning(false);
-    }, 260);
+    }, spinDuration);
   }
 
   function handleLocationKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -567,20 +613,74 @@ export function SearchForm({ onResults }: SearchFormProps) {
 
               {isFoodTypeHelperOpen ? (
                 <div className="mt-3 grid gap-3">
-                  <button
-                    aria-label="Spin to choose a food type"
-                    className="btn-secondary min-h-11 w-full rounded-xl py-2 text-xs"
-                    disabled={isFoodTypeSpinning}
-                    onClick={spinFoodType}
-                    type="button"
-                  >
-                    {isFoodTypeSpinning ? "Picking..." : "Spin food type"}
-                  </button>
+                  <div className="grid gap-3 sm:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] sm:items-center">
+                    <div className="relative mx-auto grid aspect-square w-full max-w-[11.5rem] place-items-center rounded-full border border-orange-100 bg-amber-50/70 p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.72)] sm:max-w-[13rem]">
+                      <div className="absolute -top-0.5 z-10 h-0 w-0 border-x-[10px] border-t-[20px] border-x-transparent border-t-amber-500 drop-shadow" />
+                      <svg
+                        aria-label="Food type wheel"
+                        className="h-full w-full rounded-full border-[6px] border-white bg-stone-100 shadow-[0_14px_30px_rgba(120,53,15,0.14)] transition-transform ease-[cubic-bezier(0.12,0.88,0.18,1)]"
+                        role="img"
+                        style={{
+                          transform: `rotate(${foodTypeWheelRotation}deg)`,
+                          transitionDuration: `${foodTypeWheelDurationMs}ms`,
+                        }}
+                        viewBox="0 0 200 200"
+                      >
+                        {foodTypeOptions.map((foodType, index) => {
+                          const segmentSize = 360 / foodTypeOptions.length;
+                          const startAngle = index * segmentSize;
+                          const endAngle = startAngle + segmentSize;
+                          const labelAngle = startAngle + segmentSize / 2;
+                          const labelPoint = foodTypePolarToCartesian(100, 62, labelAngle);
+                          const labelRotation = labelAngle > 180 ? labelAngle + 90 : labelAngle - 90;
+
+                          return (
+                            <g key={foodType}>
+                              <path
+                                d={describeFoodTypeSegment(startAngle, endAngle)}
+                                fill={foodTypeWheelColors[index % foodTypeWheelColors.length]}
+                                stroke="rgba(255,255,255,0.72)"
+                                strokeWidth="1"
+                              />
+                              <text
+                                dominantBaseline="middle"
+                                fill="#1c1917"
+                                fontSize="6.5"
+                                fontWeight="700"
+                                textAnchor="middle"
+                                transform={`translate(${labelPoint.x} ${labelPoint.y}) rotate(${labelRotation})`}
+                              >
+                                {shortenFoodTypeLabel(foodType)}
+                              </text>
+                            </g>
+                          );
+                        })}
+                      </svg>
+                      <div className="absolute grid h-12 w-12 place-items-center rounded-full border border-amber-100 bg-white text-center text-[11px] font-semibold text-stone-900 shadow-[0_10px_22px_rgba(120,53,15,0.16)]">
+                        Food
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <button
+                        aria-label="Spin to choose a food type"
+                        className="btn-accent min-h-11 w-full rounded-xl py-2 text-xs"
+                        disabled={isFoodTypeSpinning}
+                        onClick={spinFoodType}
+                        type="button"
+                      >
+                        {isFoodTypeSpinning ? "Spinning..." : "Spin food type"}
+                      </button>
+                      <p className={helperClassName}>
+                        The spin only fills the Food keyword. Press Search Google Places when you are ready.
+                      </p>
+                    </div>
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {foodTypeOptions.map((foodType) => (
                       <button
                         aria-label={`Set food keyword to ${foodType}`}
                         className="rounded-full border border-orange-100 bg-white/85 px-3 py-2 text-xs font-semibold text-stone-700 transition hover:border-amber-300 hover:bg-amber-50 focus:outline-none focus:ring-4 focus:ring-amber-100"
+                        disabled={isFoodTypeSpinning}
                         key={foodType}
                         onClick={() => setFoodKeywordFromHelper(foodType)}
                         type="button"
