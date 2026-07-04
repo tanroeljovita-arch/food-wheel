@@ -57,7 +57,7 @@ const fieldClassName =
   "field-control";
 const labelClassName = "field-label";
 const helperClassName = "helper-text";
-const foodTypeOptions = [
+const defaultFoodTypeOptions = [
   "Chinese food",
   "Malay food",
   "Indian food",
@@ -75,6 +75,9 @@ const foodTypeOptions = [
   "Dessert",
   "Vegetarian",
 ];
+const foodTypeStorageKey = "food-wheel-food-types";
+const maxFoodTypeLength = 40;
+const maxFoodTypeCount = 30;
 const foodTypeWheelColors = ["#f59e0b", "#fb7185", "#84cc16", "#38bdf8", "#facc15", "#a78bfa"];
 const foodTypeSpinDurationMs = 1900;
 
@@ -106,6 +109,41 @@ function shortenFoodTypeLabel(foodType: string) {
   return foodType.replace(" food", "").replace("Western", "West").replace("Vegetarian", "Veg");
 }
 
+function normalizeFoodTypeList(value: unknown) {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+
+  const seenFoodTypes = new Set<string>();
+  const normalizedFoodTypes: string[] = [];
+
+  for (const item of value) {
+    if (typeof item !== "string") {
+      continue;
+    }
+
+    const trimmedItem = item.trim();
+    const normalizedItem = trimmedItem.toLocaleLowerCase();
+
+    if (
+      !trimmedItem ||
+      trimmedItem.length > maxFoodTypeLength ||
+      seenFoodTypes.has(normalizedItem)
+    ) {
+      continue;
+    }
+
+    seenFoodTypes.add(normalizedItem);
+    normalizedFoodTypes.push(trimmedItem);
+
+    if (normalizedFoodTypes.length >= maxFoodTypeCount) {
+      break;
+    }
+  }
+
+  return normalizedFoodTypes.length > 0 ? normalizedFoodTypes : null;
+}
+
 export function SearchForm({ onResults }: SearchFormProps) {
   const [locationInput, setLocationInput] = useState("");
   const [selectedLocation, setSelectedLocation] = useState<SelectedLocation | null>(null);
@@ -118,10 +156,15 @@ export function SearchForm({ onResults }: SearchFormProps) {
   const [priceFilter, setPriceFilter] = useState<PriceFilter>("all");
   const [resultMode, setResultMode] = useState<"append" | "replace_google">("replace_google");
   const [isFoodTypeHelperOpen, setIsFoodTypeHelperOpen] = useState(false);
+  const [foodTypeOptions, setFoodTypeOptions] = useState(defaultFoodTypeOptions);
   const [foodTypeMessage, setFoodTypeMessage] = useState<string | null>(null);
+  const [foodTypeValidationMessage, setFoodTypeValidationMessage] = useState<string | null>(null);
+  const [isFoodTypeEditMode, setIsFoodTypeEditMode] = useState(false);
   const [isFoodTypeSpinning, setIsFoodTypeSpinning] = useState(false);
+  const [newFoodType, setNewFoodType] = useState("");
   const [foodTypeWheelRotation, setFoodTypeWheelRotation] = useState(0);
   const [foodTypeWheelDurationMs, setFoodTypeWheelDurationMs] = useState(foodTypeSpinDurationMs);
+  const [hasLoadedFoodTypes, setHasLoadedFoodTypes] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -140,6 +183,30 @@ export function SearchForm({ onResults }: SearchFormProps) {
     Number.isFinite(selectedLocation?.lng) &&
     isRadiusValid;
   const hasBrowserKey = Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY);
+
+  useEffect(() => {
+    try {
+      const savedFoodTypes = window.localStorage.getItem(foodTypeStorageKey);
+      const parsedFoodTypes = savedFoodTypes ? JSON.parse(savedFoodTypes) : null;
+      const normalizedFoodTypes = normalizeFoodTypeList(parsedFoodTypes);
+
+      if (normalizedFoodTypes) {
+        setFoodTypeOptions(normalizedFoodTypes);
+      }
+    } catch {
+      setFoodTypeOptions(defaultFoodTypeOptions);
+    } finally {
+      setHasLoadedFoodTypes(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasLoadedFoodTypes) {
+      return;
+    }
+
+    window.localStorage.setItem(foodTypeStorageKey, JSON.stringify(foodTypeOptions));
+  }, [foodTypeOptions, hasLoadedFoodTypes]);
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "development") {
@@ -260,15 +327,64 @@ export function SearchForm({ onResults }: SearchFormProps) {
   function setFoodKeywordFromHelper(foodType: string) {
     setKeyword(foodType);
     setFoodTypeMessage(`Food keyword set to: ${foodType}`);
+    setFoodTypeValidationMessage(null);
   }
 
-  function spinFoodType() {
-    if (isFoodTypeSpinning) {
+  function addFoodType() {
+    const trimmedFoodType = newFoodType.trim();
+    const normalizedFoodType = trimmedFoodType.toLocaleLowerCase();
+
+    if (!trimmedFoodType) {
+      setFoodTypeValidationMessage("Enter a food type first.");
       return;
     }
 
-    const nextFoodTypeIndex = Math.floor(Math.random() * foodTypeOptions.length);
-    const segmentSize = 360 / foodTypeOptions.length;
+    if (trimmedFoodType.length > maxFoodTypeLength) {
+      setFoodTypeValidationMessage(`Food type must be ${maxFoodTypeLength} characters or fewer.`);
+      return;
+    }
+
+    if (foodTypeOptions.length >= maxFoodTypeCount) {
+      setFoodTypeValidationMessage(`You can keep up to ${maxFoodTypeCount} food types.`);
+      return;
+    }
+
+    if (foodTypeOptions.some((foodType) => foodType.toLocaleLowerCase() === normalizedFoodType)) {
+      setFoodTypeValidationMessage("That food type is already in the list.");
+      return;
+    }
+
+    setFoodTypeOptions((currentFoodTypes) => [...currentFoodTypes, trimmedFoodType]);
+    setNewFoodType("");
+    setFoodTypeValidationMessage(null);
+  }
+
+  function removeFoodType(foodTypeToRemove: string) {
+    if (foodTypeOptions.length <= 1) {
+      setFoodTypeValidationMessage("Keep at least one food type in the wheel.");
+      return;
+    }
+
+    setFoodTypeOptions((currentFoodTypes) =>
+      currentFoodTypes.filter((foodType) => foodType !== foodTypeToRemove),
+    );
+    setFoodTypeValidationMessage(null);
+  }
+
+  function resetFoodTypes() {
+    setFoodTypeOptions(defaultFoodTypeOptions);
+    setNewFoodType("");
+    setFoodTypeValidationMessage("Default food type list restored.");
+  }
+
+  function spinFoodType() {
+    if (isFoodTypeSpinning || foodTypeOptions.length === 0) {
+      return;
+    }
+
+    const currentFoodTypes = foodTypeOptions;
+    const nextFoodTypeIndex = Math.floor(Math.random() * currentFoodTypes.length);
+    const segmentSize = 360 / currentFoodTypes.length;
     const segmentCenterAngle = nextFoodTypeIndex * segmentSize + segmentSize / 2;
     const currentNormalizedRotation = ((foodTypeWheelRotation % 360) + 360) % 360;
     const targetNormalizedRotation = (360 - segmentCenterAngle) % 360;
@@ -281,11 +397,12 @@ export function SearchForm({ onResults }: SearchFormProps) {
 
     setIsFoodTypeSpinning(true);
     setFoodTypeMessage(null);
+    setFoodTypeValidationMessage(null);
     setFoodTypeWheelDurationMs(spinDuration);
     setFoodTypeWheelRotation(nextRotation);
 
     window.setTimeout(() => {
-      setFoodKeywordFromHelper(foodTypeOptions[nextFoodTypeIndex]);
+      setFoodKeywordFromHelper(currentFoodTypes[nextFoodTypeIndex]);
       setIsFoodTypeSpinning(false);
     }, spinDuration);
   }
@@ -613,6 +730,22 @@ export function SearchForm({ onResults }: SearchFormProps) {
 
               {isFoodTypeHelperOpen ? (
                 <div className="mt-3 grid gap-3">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <p className={helperClassName}>
+                      Customize the list used by the mini wheel on this device.
+                    </p>
+                    <button
+                      aria-expanded={isFoodTypeEditMode}
+                      className="btn-small w-full sm:w-auto"
+                      onClick={() => {
+                        setIsFoodTypeEditMode((current) => !current);
+                        setFoodTypeValidationMessage(null);
+                      }}
+                      type="button"
+                    >
+                      {isFoodTypeEditMode ? "Done editing" : "Edit list"}
+                    </button>
+                  </div>
                   <div className="grid gap-3 sm:grid-cols-[minmax(0,13rem)_minmax(0,1fr)] sm:items-center">
                     <div className="relative mx-auto grid aspect-square w-full max-w-[11.5rem] place-items-center rounded-full border border-orange-100 bg-amber-50/70 p-2 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.72)] sm:max-w-[13rem]">
                       <div className="absolute -top-0.5 z-10 h-0 w-0 border-x-[10px] border-t-[20px] border-x-transparent border-t-amber-500 drop-shadow" />
@@ -675,21 +808,80 @@ export function SearchForm({ onResults }: SearchFormProps) {
                       </p>
                     </div>
                   </div>
+                  {isFoodTypeEditMode ? (
+                    <div className="grid gap-3 rounded-2xl border border-orange-100 bg-white/70 p-3">
+                      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                        <label className="sr-only" htmlFor="new-food-type">
+                          Add food type
+                        </label>
+                        <input
+                          className={fieldClassName}
+                          id="new-food-type"
+                          maxLength={maxFoodTypeLength}
+                          onChange={(event) => {
+                            setNewFoodType(event.target.value);
+                            setFoodTypeValidationMessage(null);
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              addFoodType();
+                            }
+                          }}
+                          placeholder="Add food type"
+                          type="text"
+                          value={newFoodType}
+                        />
+                        <button className="btn-secondary w-full sm:w-auto" onClick={addFoodType} type="button">
+                          Add
+                        </button>
+                      </div>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <p className={helperClassName}>
+                          {foodTypeOptions.length}/{maxFoodTypeCount} food types. Max {maxFoodTypeLength} characters each.
+                        </p>
+                        <button className="btn-small w-full sm:w-auto" onClick={resetFoodTypes} type="button">
+                          Reset default
+                        </button>
+                      </div>
+                    </div>
+                  ) : null}
                   <div className="flex flex-wrap gap-2">
                     {foodTypeOptions.map((foodType) => (
-                      <button
-                        aria-label={`Set food keyword to ${foodType}`}
-                        className="rounded-full border border-orange-100 bg-white/85 px-3 py-2 text-xs font-semibold text-stone-700 transition hover:border-amber-300 hover:bg-amber-50 focus:outline-none focus:ring-4 focus:ring-amber-100"
-                        disabled={isFoodTypeSpinning}
+                      <span
+                        className="inline-flex min-h-10 max-w-full items-center overflow-hidden rounded-full border border-orange-100 bg-white/85 text-xs font-semibold text-stone-700"
                         key={foodType}
-                        onClick={() => setFoodKeywordFromHelper(foodType)}
-                        type="button"
                       >
-                        {foodType}
-                      </button>
+                        <button
+                          aria-label={`Set food keyword to ${foodType}`}
+                          className="min-h-10 min-w-0 px-3 py-2 text-left transition hover:bg-amber-50 focus:outline-none focus:ring-4 focus:ring-amber-100"
+                          disabled={isFoodTypeSpinning}
+                          onClick={() => setFoodKeywordFromHelper(foodType)}
+                          type="button"
+                        >
+                          <span className="block truncate">{foodType}</span>
+                        </button>
+                        {isFoodTypeEditMode ? (
+                          <button
+                            aria-label={`Remove ${foodType}`}
+                            className="min-h-10 border-l border-orange-100 px-2 text-stone-400 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-4 focus:ring-red-100 disabled:cursor-not-allowed disabled:text-stone-300"
+                            disabled={foodTypeOptions.length <= 1}
+                            onClick={() => removeFoodType(foodType)}
+                            type="button"
+                          >
+                            x
+                          </button>
+                        ) : null}
+                      </span>
                     ))}
                   </div>
                 </div>
+              ) : null}
+
+              {foodTypeValidationMessage ? (
+                <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                  {foodTypeValidationMessage}
+                </p>
               ) : null}
 
               {foodTypeMessage ? (
