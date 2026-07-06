@@ -2,34 +2,62 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://food-wheel-seven.vercel.app/</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-07-06</lastmod>
   </url>
   <url>
     <loc>https://food-wheel-seven.vercel.app/about</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-07-06</lastmod>
   </url>
   <url>
     <loc>https://food-wheel-seven.vercel.app/privacy</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-07-06</lastmod>
   </url>
   <url>
     <loc>https://food-wheel-seven.vercel.app/contact</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-07-06</lastmod>
   </url>
   <url>
     <loc>https://food-wheel-seven.vercel.app/random-restaurant-picker</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-07-06</lastmod>
   </url>
   <url>
     <loc>https://food-wheel-seven.vercel.app/what-to-eat-near-me</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-07-06</lastmod>
   </url>
   <url>
     <loc>https://food-wheel-seven.vercel.app/food-wheel-malaysia</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-07-06</lastmod>
   </url>
   <url>
     <loc>https://food-wheel-seven.vercel.app/makan-wheel-malaysia</loc>
-    <lastmod>2026-07-01</lastmod>
+    <lastmod>2026-07-06</lastmod>
+  </url>
+  <url>
+    <loc>https://food-wheel-seven.vercel.app/guides</loc>
+    <lastmod>2026-07-06</lastmod>
+  </url>
+  <url>
+    <loc>https://food-wheel-seven.vercel.app/guides/how-to-pick-what-to-eat</loc>
+    <lastmod>2026-07-06</lastmod>
+  </url>
+  <url>
+    <loc>https://food-wheel-seven.vercel.app/guides/random-restaurant-picker-guide</loc>
+    <lastmod>2026-07-06</lastmod>
+  </url>
+  <url>
+    <loc>https://food-wheel-seven.vercel.app/guides/what-to-eat-when-you-cannot-decide</loc>
+    <lastmod>2026-07-06</lastmod>
+  </url>
+  <url>
+    <loc>https://food-wheel-seven.vercel.app/guides/malaysia-food-decision-guide</loc>
+    <lastmod>2026-07-06</lastmod>
+  </url>
+  <url>
+    <loc>https://food-wheel-seven.vercel.app/guides/how-food-wheel-uses-location-search</loc>
+    <lastmod>2026-07-06</lastmod>
+  </url>
+  <url>
+    <loc>https://food-wheel-seven.vercel.app/guides/group-food-decision-tips</loc>
+    <lastmod>2026-07-06</lastmod>
   </url>
 </urlset>

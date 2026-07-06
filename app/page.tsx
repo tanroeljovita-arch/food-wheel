@@ -232,8 +232,52 @@ export default function Home() {
         </div>
 
         <section className="app-card-subtle">
-          <h2 className="section-heading">More ways to use Food Wheel</h2>
+          <h2 className="section-heading">How Food Wheel works</h2>
+          <div className="mt-4 grid gap-3 text-sm leading-6 text-stone-600 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-orange-100 bg-white/70 p-3">
+              <p className="font-semibold text-stone-900">1. Choose your starting point</p>
+              <p className="mt-1">Use your current location, select a place, or add manual options you already know.</p>
+            </div>
+            <div className="rounded-2xl border border-orange-100 bg-white/70 p-3">
+              <p className="font-semibold text-stone-900">2. Pick a food type</p>
+              <p className="mt-1">Type a keyword yourself, choose a chip, or spin the mini food type wheel.</p>
+            </div>
+            <div className="rounded-2xl border border-orange-100 bg-white/70 p-3">
+              <p className="font-semibold text-stone-900">3. Search real places</p>
+              <p className="mt-1">Google verified results come from Google Places and depend on the filters you choose.</p>
+            </div>
+            <div className="rounded-2xl border border-orange-100 bg-white/70 p-3">
+              <p className="font-semibold text-stone-900">4. Spin to decide</p>
+              <p className="mt-1">Remove anything unsuitable, then let the wheel pick from your current list.</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="app-card-subtle">
+            <h2 className="section-heading">Who Food Wheel is for</h2>
+            <p className="mt-3 text-sm leading-6 text-stone-600">
+              Food Wheel is useful for solo meals, couples, friends, students, office lunch groups,
+              travel food decisions, and Malaysia users who want a quick way to settle everyday
+              makan choices without turning the app into a review platform.
+            </p>
+          </div>
+          <div className="app-card-subtle">
+            <h2 className="section-heading">Transparency note</h2>
+            <p className="mt-3 text-sm leading-6 text-stone-600">
+              Google results depend on Google Places data. Manual options are entered by you.
+              Food Wheel does not create fake restaurant listings, fake reviews, or fake ratings,
+              and you control what you search, add, remove, and spin.
+            </p>
+          </div>
+        </section>
+
+        <section className="app-card-subtle">
+          <h2 className="section-heading">Helpful Food Wheel guides</h2>
           <div className="mt-3 flex flex-wrap gap-2 text-sm font-medium text-stone-700">
+            <Link className="rounded-full bg-white/75 px-3 py-2 ring-1 ring-orange-100 transition hover:bg-amber-50" href="/guides">
+              Guides
+            </Link>
             <Link className="rounded-full bg-white/75 px-3 py-2 ring-1 ring-orange-100 transition hover:bg-amber-50" href="/random-restaurant-picker">
               Random Restaurant Picker
             </Link>
