@@ -81,6 +81,12 @@ const maxFoodTypeCount = 30;
 const foodTypeWheelColors = ["#f59e0b", "#fb7185", "#84cc16", "#38bdf8", "#facc15", "#a78bfa"];
 const foodTypeSpinDurationMs = 1900;
 
+function debugLog(...args: unknown[]) {
+  if (process.env.NODE_ENV === "development") {
+    console.log(...args);
+  }
+}
+
 function foodTypePolarToCartesian(center: number, radius: number, angleInDegrees: number) {
   const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180;
 
@@ -213,7 +219,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
       return;
     }
 
-    console.log("map preview state", {
+    debugLog("map preview state", {
       hasMapCenter,
       latitude: selectedLocation?.lat,
       longitude: selectedLocation?.lng,
@@ -263,7 +269,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
     const timer = window.setTimeout(async () => {
       setIsLoadingSuggestions(true);
       setLocationMessage(null);
-      console.log("autocomplete request", trimmedInput);
+      debugLog("autocomplete request", trimmedInput);
 
       try {
         const response = await fetch("/api/location/autocomplete", {
@@ -282,13 +288,13 @@ export function SearchForm({ onResults }: SearchFormProps) {
         if (!response.ok) {
           setSuggestions([]);
           const errorMessage = data.error || "Could not load location suggestions.";
-          console.log("autocomplete error", errorMessage);
+          debugLog("autocomplete error", errorMessage);
           setLocationMessage(errorMessage);
           return;
         }
 
         const nextSuggestions = data.suggestions || [];
-        console.log("autocomplete response count", nextSuggestions.length);
+        debugLog("autocomplete response count", nextSuggestions.length);
         setSuggestions(nextSuggestions);
         setLocationMessage(
           nextSuggestions.length === 0 ? "No location suggestions found." : null,
@@ -296,7 +302,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
       } catch (error) {
         if (!(error instanceof DOMException && error.name === "AbortError")) {
           setSuggestions([]);
-          console.log("autocomplete error", "Could not load location suggestions.");
+          debugLog("autocomplete error", "Could not load location suggestions.");
           setLocationMessage("Could not load location suggestions.");
         }
       } finally {
@@ -416,60 +422,96 @@ export function SearchForm({ onResults }: SearchFormProps) {
     setMessage("Please select a location from the suggestions or use your current location.");
   }
 
-  function useCurrentLocation() {
-    setMessage(null);
+  function applyCurrentLocation(position: GeolocationPosition) {
+    const label = "Current location";
+    const nextLocation = {
+      label,
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+    };
+
+    setSelectedLocation(nextLocation);
+    setLocationBias({
+      lat: nextLocation.lat,
+      lng: nextLocation.lng,
+      source: "current_location",
+    });
+    setLocationInput(label);
+    setSuggestions([]);
     setLocationMessage(null);
 
+    return nextLocation;
+  }
+
+  function getCurrentLocation() {
     if (!navigator.geolocation) {
-      setMessage("Your browser does not support location sharing.");
-      return;
+      return Promise.reject(new Error("Your browser does not support location sharing."));
     }
 
     setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const label = "Current location";
 
-        console.log("geolocation success");
+    return new Promise<SelectedLocation>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          debugLog("geolocation success");
+          const nextLocation = applyCurrentLocation(position);
 
-        setSelectedLocation({
-          label,
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
-        setLocationBias({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-          source: "current_location",
-        });
-        setLocationInput(label);
-        setSuggestions([]);
-        setLocationMessage(null);
-        setMessage("Using your current location.");
-        setIsLocating(false);
-      },
-      (error) => {
-        console.log("geolocation error", error.message || error.code);
-        setIsLocating(false);
-        setMessage(
-          error.code === error.PERMISSION_DENIED
-            ? "Location permission was denied. You can allow location access in browser settings or type and select a location."
-            : "Could not get your current location. Please try again.",
-        );
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000,
-      },
-    );
+          setIsLocating(false);
+          resolve(nextLocation);
+        },
+        (error) => {
+          debugLog("geolocation error", error.message || error.code);
+          setIsLocating(false);
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000,
+        },
+      );
+    });
+  }
+
+  function getLocationErrorMessage(error: unknown) {
+    if (error && typeof error === "object" && "code" in error) {
+      if (error.code === 1) {
+        return "Please allow location access or type a location to search nearby places.";
+      }
+
+      if (error.code === 2) {
+        return "Your current location is unavailable. Please try again or type a location.";
+      }
+
+      if (error.code === 3) {
+        return "Getting your current location timed out. Please try again or type a location.";
+      }
+    }
+
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    return "Please allow location access or type a location to search nearby places.";
+  }
+
+  async function useCurrentLocation() {
+    setMessage(null);
+    setLocationMessage(null);
+
+    try {
+      await getCurrentLocation();
+      setMessage("Using your current location.");
+    } catch (error) {
+      setMessage(getLocationErrorMessage(error));
+    }
   }
 
   async function selectSuggestion(suggestion: LocationSuggestion) {
     setMessage(null);
     setLocationMessage(null);
     setIsLoadingDetails(true);
-    console.log("selected placeId", suggestion.placeId);
+    debugLog("selected placeId", suggestion.placeId);
 
     try {
       const response = await fetch("/api/location/details", {
@@ -483,14 +525,14 @@ export function SearchForm({ onResults }: SearchFormProps) {
 
       if (!response.ok) {
         const errorMessage = data.error || "Could not load the selected location.";
-        console.log("details error", errorMessage);
+        debugLog("details error", errorMessage);
         setLocationMessage(errorMessage);
         return;
       }
 
       if (typeof data.lat !== "number" || typeof data.lng !== "number") {
         const errorMessage = "Selected location does not include coordinates.";
-        console.log("details error", errorMessage);
+        debugLog("details error", errorMessage);
         setLocationMessage(errorMessage);
         return;
       }
@@ -508,11 +550,11 @@ export function SearchForm({ onResults }: SearchFormProps) {
         lng: data.lng,
         source: "selected_location",
       });
-      console.log("details resolved lat/lng", data.lat, data.lng);
+      debugLog("details resolved lat/lng", data.lat, data.lng);
       setLocationInput(label);
       setSuggestions([]);
     } catch {
-      console.log("details error", "Could not load the selected location.");
+      debugLog("details error", "Could not load the selected location.");
       setLocationMessage("Could not load the selected location.");
     } finally {
       setIsLoadingDetails(false);
@@ -523,8 +565,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
     event.preventDefault();
     setMessage(null);
 
-    if (!selectedLocation) {
-      setMessage("Please select a location from the suggestions or use your current location.");
+    if (isSearching || isLocating) {
       return;
     }
 
@@ -543,8 +584,21 @@ export function SearchForm({ onResults }: SearchFormProps) {
       return;
     }
 
+    let searchLocation = selectedLocation;
+
+    if (!searchLocation) {
+      setMessage("Getting your current location...");
+
+      try {
+        searchLocation = await getCurrentLocation();
+      } catch (error) {
+        setMessage(getLocationErrorMessage(error));
+        return;
+      }
+    }
+
     setIsSearching(true);
-    console.log("restaurant search request started");
+    debugLog("restaurant search request started");
 
     try {
       const response = await fetch("/api/places/search", {
@@ -553,8 +607,8 @@ export function SearchForm({ onResults }: SearchFormProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          lat: selectedLocation.lat,
-          lng: selectedLocation.lng,
+          lat: searchLocation.lat,
+          lng: searchLocation.lng,
           radius: radiusMeters,
           keyword,
           openingMode,
@@ -568,13 +622,13 @@ export function SearchForm({ onResults }: SearchFormProps) {
 
       if (!response.ok) {
         const errorMessage = data.error || "Google Places search failed. Please try again.";
-        console.log("restaurant search error", errorMessage);
+        debugLog("restaurant search error", errorMessage);
         setMessage(errorMessage);
         return;
       }
 
       const results = data.items || [];
-      console.log("restaurant search response count", results.length);
+      debugLog("restaurant search response count", results.length);
       const summary = onResults(results, resultMode);
       const emptyMessage = "No restaurants found for this time within your selected radius.";
       const messages = [
@@ -601,7 +655,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
 
       setMessage(messages.join(" "));
     } catch {
-      console.log("restaurant search error", "Could not search Google Places right now.");
+      debugLog("restaurant search error", "Could not search Google Places right now.");
       setMessage("Could not search Google Places right now. Please try again.");
     } finally {
       setIsSearching(false);
@@ -976,7 +1030,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
           disabled={isSearching || isLocating || isLoadingDetails || cooldownSeconds > 0}
           type="submit"
         >
-          {isSearching ? "Searching..." : "Search Google Places"}
+          {isLocating ? "Getting location..." : isSearching ? "Searching..." : "Search Google Places"}
         </button>
 
         {cooldownSeconds > 0 ? (

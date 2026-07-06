@@ -15,6 +15,12 @@ const AUTOCOMPLETE_FIELD_MASK = [
 ].join(",");
 const LOCATION_DETAILS_FIELD_MASK = "id,displayName,formattedAddress,location";
 
+function debugLog(...args: unknown[]) {
+  if (process.env.NODE_ENV === "development") {
+    console.log(...args);
+  }
+}
+
 export type LocationSuggestion = {
   placeId: string;
   mainText: string;
@@ -240,9 +246,9 @@ export async function getLocationAutocompleteSuggestions(
 
   const dedupedSuggestions = dedupeSuggestions(suggestions);
 
-  console.log("Location autocomplete input", input);
-  console.log("Location autocomplete bias source", bias.source);
-  console.log("Location autocomplete suggestion count", dedupedSuggestions.length);
+  debugLog("Location autocomplete input", input);
+  debugLog("Location autocomplete bias source", bias.source);
+  debugLog("Location autocomplete suggestion count", dedupedSuggestions.length);
 
   return dedupedSuggestions;
 }

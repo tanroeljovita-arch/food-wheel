@@ -27,6 +27,12 @@ const TEXT_SEARCH_MAX_PAGES = 3;
 const EARTH_RADIUS_METERS = 6371000;
 const EMPTY_KEYWORD_QUERIES = ["restaurant", "food", "meal takeaway", "cafe", "local food"];
 
+function debugLog(...args: unknown[]) {
+  if (process.env.NODE_ENV === "development") {
+    console.log(...args);
+  }
+}
+
 type GooglePlacesResponse = {
   places?: unknown[];
   nextPageToken?: string;
@@ -353,18 +359,18 @@ export async function searchGooglePlaces(input: PlacesSearchInput): Promise<Rest
     afterPriceFilterCount += 1;
   }
 
-  console.log("Google Places original food keyword", input.keyword);
-  console.log("Google Places generated query variants", searchQueries);
-  console.log("Google Places raw results fetched", places.length);
-  console.log("Google Places query count", searchQueries.length);
-  console.log("Google Places deduped count", dedupedValidPlaces.size);
-  console.log("Google Places inside-radius count", insideRadiusCount);
-  console.log("Google Places after opening-hours filter count", afterOpeningHoursCount);
-  console.log("Google Places after price filter count", afterPriceFilterCount);
-  console.log("Google Places final displayed count", insideRadiusPlaces.size);
-  console.log("Google Places hidden by opening-hours filter", hiddenByOpeningHoursCount);
-  console.log("Google Places hidden by price filter", hiddenByPriceCount);
-  console.log("Google Places selected radius meters", input.radius);
+  debugLog("Google Places original food keyword", input.keyword);
+  debugLog("Google Places generated query variants", searchQueries);
+  debugLog("Google Places raw results fetched", places.length);
+  debugLog("Google Places query count", searchQueries.length);
+  debugLog("Google Places deduped count", dedupedValidPlaces.size);
+  debugLog("Google Places inside-radius count", insideRadiusCount);
+  debugLog("Google Places after opening-hours filter count", afterOpeningHoursCount);
+  debugLog("Google Places after price filter count", afterPriceFilterCount);
+  debugLog("Google Places final displayed count", insideRadiusPlaces.size);
+  debugLog("Google Places hidden by opening-hours filter", hiddenByOpeningHoursCount);
+  debugLog("Google Places hidden by price filter", hiddenByPriceCount);
+  debugLog("Google Places selected radius meters", input.radius);
 
   return Array.from(insideRadiusPlaces.values()).sort(
     (first, second) =>
