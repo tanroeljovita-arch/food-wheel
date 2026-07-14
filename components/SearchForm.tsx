@@ -561,6 +561,24 @@ export function SearchForm({ onResults }: SearchFormProps) {
     }
   }
 
+  function handleMapCenterChange(lat: number, lng: number) {
+    const label = "Adjusted map location";
+
+    setSelectedLocation({
+      label,
+      lat,
+      lng,
+    });
+    setLocationBias({
+      lat,
+      lng,
+      source: "selected_location",
+    });
+    setLocationInput(label);
+    setLocationMessage("Search center adjusted. Press Search Google Places to update results.");
+    setMessage(null);
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage(null);
@@ -997,6 +1015,7 @@ export function SearchForm({ onResults }: SearchFormProps) {
             latitude={selectedLocation.lat}
             locationLabel={selectedLocation.label}
             longitude={selectedLocation.lng}
+            onCenterChange={handleMapCenterChange}
             radiusKm={numericRadiusKm}
           />
         ) : null}

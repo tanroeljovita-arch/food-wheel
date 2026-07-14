@@ -7,6 +7,7 @@ type MapPreviewProps = {
   longitude: number;
   radiusKm: number;
   locationLabel?: string;
+  onCenterChange?: (latitude: number, longitude: number) => void;
 };
 
 declare global {
@@ -55,8 +56,15 @@ function loadGoogleMaps(apiKey: string) {
   return window.foodWheelGoogleMapsPromise;
 }
 
-export function MapPreview({ latitude, longitude, radiusKm, locationLabel }: MapPreviewProps) {
+export function MapPreview({
+  latitude,
+  longitude,
+  radiusKm,
+  locationLabel,
+  onCenterChange,
+}: MapPreviewProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [hasAdjustedCenter, setHasAdjustedCenter] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error" | "missing_key">("idle");
   const mapElementRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
@@ -114,6 +122,7 @@ export function MapPreview({ latitude, longitude, radiusKm, locationLabel }: Map
           });
 
           markerRef.current = new window.google.maps.Marker({
+            draggable: true,
             map: mapRef.current,
             position: center,
             title: locationLabel || "Search center",
@@ -129,9 +138,38 @@ export function MapPreview({ latitude, longitude, radiusKm, locationLabel }: Map
             strokeOpacity: 0.75,
             strokeWeight: 2,
           });
+
+          markerRef.current.addListener("drag", () => {
+            const nextPosition = markerRef.current?.getPosition();
+
+            if (nextPosition) {
+              circleRef.current?.setCenter(nextPosition);
+            }
+          });
+
+          markerRef.current.addListener("dragend", () => {
+            const nextPosition = markerRef.current?.getPosition();
+
+            if (!nextPosition) {
+              return;
+            }
+
+            const nextLatitude = nextPosition.lat();
+            const nextLongitude = nextPosition.lng();
+
+            if (!Number.isFinite(nextLatitude) || !Number.isFinite(nextLongitude)) {
+              return;
+            }
+
+            circleRef.current?.setCenter(nextPosition);
+            mapRef.current?.panTo(nextPosition);
+            setHasAdjustedCenter(true);
+            onCenterChange?.(nextLatitude, nextLongitude);
+          });
         } else {
           mapRef.current.setCenter(center);
           markerRef.current?.setPosition(center);
+          markerRef.current?.setDraggable(true);
           markerRef.current?.setTitle(locationLabel || "Search center");
           circleRef.current?.setCenter(center);
           circleRef.current?.setRadius(radiusMeters);
@@ -163,8 +201,13 @@ export function MapPreview({ latitude, longitude, radiusKm, locationLabel }: Map
         <div>
           <p className="text-sm font-semibold text-stone-800">Search area map</p>
           <p className="helper-text">
-            This shows the area used for your nearby search. Your location is only used to find nearby places.
+            This shows the area used for your nearby search. Drag the pin to adjust the search area.
           </p>
+          {hasAdjustedCenter ? (
+            <p className="mt-1 text-xs font-medium leading-5 text-emerald-700">
+              Search center adjusted. Press Search Google Places to update results.
+            </p>
+          ) : null}
         </div>
         <button className="btn-small shrink-0" onClick={() => setIsOpen((current) => !current)} type="button">
           {isOpen ? "Hide map" : "Show search area map"}
